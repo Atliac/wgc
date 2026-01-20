@@ -10,7 +10,7 @@ documentation = "https://docs.rs/wgc"
 homepage = "https://github.com/atliac/wgc"
 readme = "README.md"
 keywords = ["windows", "screen-capture", "recording", "machine-learning"]
-categories = ["os::windows", "external-ffi"]
+categories = ["api-bindings", "asynchronous", "computer-vision", "multimedia::images", "os::windows-apis"]
 
 [dependencies]
 
