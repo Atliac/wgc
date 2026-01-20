@@ -2,5 +2,23 @@
 name = "wgc"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
+description = "A simple wrapper for Windows Graphics Capture"
+repository = "https://github.com/atliac/wgc"
+documentation = "https://docs.rs/wgc"
+homepage = "https://github.com/atliac/wgc"
+readme = "README.md"
+keywords = ["windows", "graphics", "capture", "screen", "recording", "machine-learning"]
+categories = ["os::windows", "external-ffi"]
 
 [dependencies]
+
+[dependencies.windows]
+version = "0.62"
+features = [
+]
+
+[dev-dependencies]
+
+[features]
+default = []
