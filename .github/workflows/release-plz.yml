@@ -2,7 +2,7 @@ name: Release-plz
 
 on:
   workflow_run:
-    workflows: [rust]
+    workflows: [Rust (Windows)]
     branches: [master]
     types:
       - completed
