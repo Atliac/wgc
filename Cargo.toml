@@ -15,7 +15,8 @@ categories = ["api-bindings", "asynchronous", "computer-vision", "multimedia::im
 [dependencies]
 smart-default = "0.7.1"
 thiserror = "2.0.18"
-futures = { version = "0.3", optional = true }
+futures = { version = "0.3"}
+windows-future = "0.3.2"
 windows = { version = "0.62.2", features = [
     "Foundation_Metadata",
     "Foundation",
@@ -51,9 +52,8 @@ windows = { version = "0.62.2", features = [
 [dev-dependencies]
 
 [features]
-default = ["sync", "async"]
+default = ["sync"]
 sync = []
-async = ["futures"]
 
 [package.metadata.docs.rs]
 all-features = true

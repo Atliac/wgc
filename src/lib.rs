@@ -1,22 +1,23 @@
 //! A simple wrapper for Windows Graphics Capture
 
-pub mod error;
-pub mod settings;
-pub use error::*;
-pub use settings::*;
-
-/// Feature gate macro for modular inclusion.
-///
-/// This macro conditionally compiles and re-exports modules based on the specified feature flag.
-/// Each module is only compiled and made available when the corresponding feature is enabled.
+/// A helper macro to define modules and re-export their contents,
+/// optionally gated by a compiler feature.
 macro_rules! feature_mod {
     ($feature:literal $($mod:ident),+) => {$(
-#[cfg(feature = $feature)]
-pub mod $mod;
-#[cfg(feature = $feature)]
-pub use $mod::*;
+        #[cfg(feature = $feature)]
+        pub mod $mod;
+        #[cfg(feature = $feature)]
+        pub use $mod::*;
+    )+};
+    ($($mod:ident),+) => {$(
+        pub mod $mod;
+        pub use $mod::*;
     )+};
 }
 
-feature_mod!("sync" wgc,frame);
-feature_mod!("async" wgc_async,frame_async);
+feature_mod!("sync" wgc, frame);
+feature_mod!(error, settings, wgc_async, frame_async);
+
+mod utils {
+    pub mod picker;
+}

@@ -189,6 +189,7 @@ dependencies = [
  "smart-default",
  "thiserror",
  "windows",
+ "windows-future",
 ]
 
 [[package]]
