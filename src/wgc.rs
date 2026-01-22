@@ -1,13 +1,14 @@
-use crate::{WgcError, WgcSettings};
+use windows::Graphics::Capture::GraphicsCaptureItem;
 
-pub struct Wgc {
-    //item: GraphicsCaptureItem,
+use crate::*;
+pub struct WgcAsync {
+    item: GraphicsCaptureItem,
     settings: WgcSettings,
 }
 
-// impl Wgc {
-//     pub fn new_with_picker(settings: WgcSettings) -> Result<Self, WgcError> {
-//         let item = crate::utils::picker::picker();
-//         todo!()
-//     }
-// }
+impl WgcAsync {
+    pub async fn new_with_picker(settings: WgcSettings) -> Result<Self> {
+        let item = crate::utils::picker::capture_picker().await?;
+        Ok(Self { item, settings })
+    }
+}
