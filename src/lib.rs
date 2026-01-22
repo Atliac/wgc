@@ -15,9 +15,4 @@ macro_rules! feature_mod {
     )+};
 }
 
-//feature_mod!("sync" wgc_sync, frame_sync);
-feature_mod!(error, settings, wgc, frame);
-
-mod utils {
-    pub mod picker;
-}
+feature_mod!(settings, frame, picker);
