@@ -9,14 +9,14 @@ use windows::{
 };
 use windows_future::AsyncStatus;
 #[derive(Debug, thiserror::Error)]
-pub enum CaptureItemPickerFailed {
+pub enum CaptureItemPickerError {
     #[error("Failed to run picker: {0}")]
     WindowsError(#[from] windows::core::Error),
     #[error("No item selected")]
     NoItemSelected,
 }
 
-pub fn new_item_with_picker() -> std::result::Result<GraphicsCaptureItem, CaptureItemPickerFailed> {
+pub fn new_item_with_picker() -> std::result::Result<GraphicsCaptureItem, CaptureItemPickerError> {
     let picker_window = create_a_hidden_window()?;
     let picker = GraphicsCapturePicker::new()?;
     let initialize_with_window: IInitializeWithWindow = picker.cast()?;
@@ -42,16 +42,15 @@ pub fn new_item_with_picker() -> std::result::Result<GraphicsCaptureItem, Captur
         }
     }
     op.GetResults().map_err(|e| {
-        let e: windows::core::Error = e.into();
-        if e.code() == S_OK.into() {
-            CaptureItemPickerFailed::NoItemSelected
+        if e.code() == S_OK {
+            CaptureItemPickerError::NoItemSelected
         } else {
             e.into()
         }
     })
 }
 
-fn create_a_hidden_window() -> std::result::Result<HWND, CaptureItemPickerFailed> {
+fn create_a_hidden_window() -> std::result::Result<HWND, CaptureItemPickerError> {
     let instance = unsafe { GetModuleHandleW(None)? };
     let window_class = w!("Rust Crate wgc(Window.Graphics.Capture) Picker");
     let wc = WNDCLASSEXW {
@@ -96,7 +95,5 @@ unsafe extern "system" fn wnd_proc(
     wparam: WPARAM,
     lparam: LPARAM,
 ) -> LRESULT {
-    match msg {
-        _ => unsafe { DefWindowProcW(hwnd, msg, wparam, lparam) },
-    }
+    unsafe { DefWindowProcW(hwnd, msg, wparam, lparam) }
 }

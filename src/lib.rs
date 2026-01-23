@@ -15,4 +15,10 @@ macro_rules! feature_mod {
     )+};
 }
 
-feature_mod!(settings, frame, picker);
+feature_mod!(settings, frame);
+
+mod utils {
+    pub mod picker;
+    pub use picker::*;
+}
+pub use utils::*;
