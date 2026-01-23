@@ -1,4 +1,5 @@
 use wgc::*;
+use windows::Graphics::Capture::Direct3D11CaptureFrame;
 
 fn main() -> anyhow::Result<()> {
     let item = match new_item_with_picker() {
@@ -9,8 +10,15 @@ fn main() -> anyhow::Result<()> {
         }
         Err(err) => return Err(err.into()),
     };
-
-    println!("{item:?} {:?} {:?}", item.DisplayName(), item.Size());
+    let settings = WgcSettings {
+        frame_queue_length: 3,
+        ..Default::default()
+    };
+    let wgc = Wgc::new(item, settings)?;
+    for frame in wgc {
+        let frame: Direct3D11CaptureFrame = frame?.into();
+        println!("Frame: {:?}", frame.ContentSize());
+    }
 
     Ok(())
 }

@@ -15,7 +15,7 @@ macro_rules! feature_mod {
     )+};
 }
 
-feature_mod!(settings, frame);
+feature_mod!(settings, frame, capture);
 
 mod utils {
     pub mod picker;
