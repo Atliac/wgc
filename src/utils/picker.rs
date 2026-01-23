@@ -1,3 +1,4 @@
+use crate::*;
 use windows::{
     Graphics::Capture::*,
     Win32::{
@@ -16,7 +17,9 @@ pub enum CaptureItemPickerError {
     NoItemSelected,
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub fn new_item_with_picker() -> std::result::Result<GraphicsCaptureItem, CaptureItemPickerError> {
+    debug!("Starting picker");
     let picker_window = create_a_hidden_window()?;
     let picker = GraphicsCapturePicker::new()?;
     let initialize_with_window: IInitializeWithWindow = picker.cast()?;
