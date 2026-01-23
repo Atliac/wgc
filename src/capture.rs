@@ -78,6 +78,7 @@ impl Wgc {
 
         item.Closed(
             &TypedEventHandler::<GraphicsCaptureItem, IInspectable>::new(move |_item, _| {
+                debug!("Item closed, stopping capture");
                 unsafe { PostQuitMessage(0) };
                 Ok(())
             }),
@@ -109,6 +110,10 @@ impl Iterator for Wgc {
                     };
 
                     if frame_size != self.buffer_size {
+                        trace!(
+                            "Frame dropped as buffer size changed from {:?} to {:?}",
+                            self.buffer_size, frame_size
+                        );
                         match self.frame_pool.Recreate(
                             &self.direct3d_device,
                             self.settings.pixel_format,
@@ -121,6 +126,7 @@ impl Iterator for Wgc {
                             Err(err) => return Some(Err(err.into())),
                         }
                     } else {
+                        trace!("Got frame");
                         return Some(Ok(Frame::new(frame)));
                     }
                 }

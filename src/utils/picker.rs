@@ -17,9 +17,7 @@ pub enum CaptureItemPickerError {
     NoItemSelected,
 }
 
-#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub fn new_item_with_picker() -> std::result::Result<GraphicsCaptureItem, CaptureItemPickerError> {
-    debug!("Starting picker");
     let picker_window = create_a_hidden_window()?;
     let picker = GraphicsCapturePicker::new()?;
     let initialize_with_window: IInitializeWithWindow = picker.cast()?;
@@ -46,6 +44,7 @@ pub fn new_item_with_picker() -> std::result::Result<GraphicsCaptureItem, Captur
     }
     op.GetResults().map_err(|e| {
         if e.code() == S_OK {
+            debug!("No item selected");
             CaptureItemPickerError::NoItemSelected
         } else {
             e.into()

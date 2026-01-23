@@ -3,7 +3,7 @@ use windows::Graphics::Capture::Direct3D11CaptureFrame;
 
 fn main() -> anyhow::Result<()> {
     use tracing_subscriber::EnvFilter;
-    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("trace"));
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
     let item = match new_item_with_picker() {
@@ -20,8 +20,8 @@ fn main() -> anyhow::Result<()> {
     };
     let wgc = Wgc::new(item, settings)?;
     for frame in wgc {
-        let frame: Direct3D11CaptureFrame = frame?.into();
-        println!("Frame: {:?}", frame.ContentSize());
+        let _frame: Direct3D11CaptureFrame = frame?.into();
+        //println!("Frame: {:?}", frame.ContentSize());
     }
 
     Ok(())

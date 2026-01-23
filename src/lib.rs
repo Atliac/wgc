@@ -18,7 +18,7 @@ pub(crate) use noop_macro as $tracing_macro;
         )+
     };
 }
-use_tracing_macros!(debug);
+use_tracing_macros!(debug, trace);
 
 /// A helper macro to define modules and re-export their contents,
 /// optionally gated by a compiler feature.
