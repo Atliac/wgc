@@ -71,6 +71,7 @@ impl Wgc {
         // This `no-op` handler is necessary; otherwise, the frame pool will fail to receive updates.
         frame_pool.FrameArrived(
             &TypedEventHandler::<Direct3D11CaptureFramePool, IInspectable>::new(move |_pool, _| {
+                trace!("Frame arrived");
                 Ok(())
             }),
         )?;

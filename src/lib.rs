@@ -20,25 +20,17 @@ pub(crate) use noop_macro as $tracing_macro;
 }
 use_tracing_macros!(debug, trace);
 
-/// A helper macro to define modules and re-export their contents,
-/// optionally gated by a compiler feature.
-macro_rules! feature_mod {
-    ($feature:literal $($mod:ident),+) => {$(
-        #[cfg(feature = $feature)]
-        pub mod $mod;
-        #[cfg(feature = $feature)]
-        pub use $mod::*;
-    )+};
-    ($($mod:ident),+) => {$(
-        pub mod $mod;
-        pub use $mod::*;
-    )+};
-}
-
-feature_mod!(settings, frame, capture);
+pub mod settings;
+pub use settings::*;
+pub mod frame;
+pub use frame::*;
+pub mod capture;
+pub use capture::*;
 
 mod utils {
     pub mod picker;
     pub use picker::*;
+    pub(crate) mod qpc;
+    pub(crate) use qpc::*;
 }
 pub use utils::*;
