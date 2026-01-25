@@ -1,5 +1,3 @@
-use std::{time::Duration, time::Instant};
-
 use wgc::*;
 
 fn main() -> anyhow::Result<()> {

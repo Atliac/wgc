@@ -26,16 +26,6 @@ use windows::{
 
 use crate::*;
 
-#[derive(Debug, thiserror::Error)]
-pub enum WgcError {
-    #[error("Wgc: {0}")]
-    WindowsError(#[from] windows::core::Error),
-    #[error("Wgc: {0}")]
-    D3DCreateDeviceError(String),
-    #[error("Wgc: Frame queue length must be greater than 0, got {0}")]
-    InvalidFrameQueueLength(i32),
-}
-
 pub struct Wgc {
     _session: GraphicsCaptureSession,
     _control: DispatcherQueueController,
@@ -55,11 +45,10 @@ impl Wgc {
         let dxgi_device: IDXGIDevice = d3d_device.cast()?;
         let direct3d_device: IDirect3DDevice =
             unsafe { CreateDirect3D11DeviceFromDXGIDevice(&dxgi_device)?.cast()? };
-        if settings.frame_queue_length <= 0 {
-            return Err(WgcError::InvalidFrameQueueLength(
-                settings.frame_queue_length,
-            ));
-        }
+        assert!(
+            settings.frame_queue_length > 0,
+            "Frame queue length must be greater than 0"
+        );
         let control = create_dispatcher_queue_controller()?;
         let buffer_size = item.Size()?;
         let frame_pool = Direct3D11CaptureFramePool::Create(
@@ -162,8 +151,7 @@ fn create_d3d_device() -> std::result::Result<ID3D11Device, WgcError> {
             None,
         )?;
     }
-    d3d_device
-        .ok_or_else(|| WgcError::D3DCreateDeviceError("Failed to create D3D device".to_string()))
+    Ok(d3d_device.unwrap())
 }
 
 fn create_dispatcher_queue_controller() -> std::result::Result<DispatcherQueueController, WgcError>

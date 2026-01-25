@@ -26,6 +26,8 @@ pub mod frame;
 pub use frame::*;
 pub mod capture;
 pub use capture::*;
+pub mod error;
+pub use error::*;
 
 mod utils {
     pub mod picker;
