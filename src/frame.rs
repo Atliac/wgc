@@ -18,6 +18,14 @@ impl Frame {
         let system_uptime = elapsed_since_system_boot();
         Ok(Instant::now() - system_uptime + frame_delay_since_boot)
     }
+
+    pub fn size(&self) -> std::result::Result<FrameSize, FrameError> {
+        let size = self.frame.ContentSize()?;
+        Ok(FrameSize {
+            width: size.Width,
+            height: size.Height,
+        })
+    }
 }
 
 impl From<Frame> for Direct3D11CaptureFrame {
@@ -30,4 +38,10 @@ impl From<Frame> for Direct3D11CaptureFrame {
 pub enum FrameError {
     #[error("Wgc: {0}")]
     WindowsError(#[from] windows::core::Error),
+}
+
+#[derive(Debug)]
+pub struct FrameSize {
+    pub width: i32,
+    pub height: i32,
 }

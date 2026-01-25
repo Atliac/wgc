@@ -1,4 +1,4 @@
-use std::{thread::sleep, time::Duration};
+use std::{time::Duration, time::Instant};
 
 use wgc::*;
 
@@ -13,13 +13,9 @@ fn main() -> anyhow::Result<()> {
         ..Default::default()
     };
     let mut wgc = Wgc::new(item, settings)?;
-    {
-        let frame = wgc.next().unwrap()?;
-        sleep(Duration::from_secs(1));
-        println!("{:?}", frame.render_time()?.elapsed());
+    if let Some(frame) = wgc.next() {
+        println!("{:?}", frame?.size()?);
     }
-    let frame = wgc.next().unwrap()?;
-    println!("{:?}", frame.render_time()?.elapsed());
 
     Ok(())
 }
