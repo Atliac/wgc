@@ -5,7 +5,7 @@ fn main() -> anyhow::Result<()> {
     let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
-    let item = new_item_with_picker()?;
+    let item = new_item_with_picker(None)?;
     let settings = WgcSettings {
         frame_queue_length: 1,
         ..Default::default()
