@@ -1,4 +1,4 @@
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error, Clone)]
 pub enum WgcError {
     #[error("Wgc: {0}")]
     WindowsError(#[from] windows::core::Error),
