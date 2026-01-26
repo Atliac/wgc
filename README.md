@@ -2,7 +2,8 @@
 
 [![Crates.io](https://img.shields.io/crates/v/wgc)](https://crates.io/crates/wgc)
 [![Documentation](https://docs.rs/wgc/badge.svg)](https://docs.rs/wgc)
-[![License](https://img.shields.io/crates/l/wgc)](https://github.com/atliac/wgc/blob/main/LICENSE)
+[![License](https://img.shields.io/crates/l/wgc)](https://github.com/atliac/wgc/blob/master/LICENSE)
+[![Rust (Windows)](https://github.com/Atliac/wgc/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/Atliac/wgc/actions/workflows/rust.yml)
 
 A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling screen/window capture on Windows 10/11.
 
@@ -133,8 +134,3 @@ at your option.
 ## Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
-
-## Related Projects
-
-- [Windows.Graphics.Capture documentation](https://learn.microsoft.com/en-us/uwp/api/windows.graphics.capture)
-- [Rust for Windows](https://github.com/microsoft/windows-rs)
