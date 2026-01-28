@@ -1,6 +1,6 @@
 [package]
 name = "wgc"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 authors = ["Atliac"]
@@ -61,3 +61,5 @@ tracing = ["dep:tracing"]
 
 [package.metadata.docs.rs]
 all-features = true
+default-target = "x86_64-pc-windows-msvc"
+targets = ["x86_64-pc-windows-msvc"]
