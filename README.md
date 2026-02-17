@@ -7,8 +7,6 @@
 
 A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling screen/window capture on Windows 10/11.
 
-> ⚠️ **Note**: This crate is currently under active development and may not yet be feature-complete or stable for production use.
-
 ## Features
 
 - Easy-to-use iterator interface for capturing frames
@@ -43,21 +41,18 @@ fn main() -> anyhow::Result<()> {
     // Pick an item to capture (window or monitor)
     let item = new_item_with_picker(None)?;
 
-    // Configure capture settings
-    let settings = WgcSettings {
-        frame_queue_length: 1,
-        ..Default::default()
-    };
-
     // Create the capture instance
-    let wgc = Wgc::new(item.clone(), settings)?;
+    let wgc = Wgc::new(item.clone(), Default::default())?;
 
     // Iterate over captured frames
-    for frame in wgc.take(3) {
+    for frame in wgc.take(1) {
         let frame = frame?;
         println!("Captured frame from {} with size {:?}",
                  item.clone().DisplayName()?,
                  frame.size()?);
+        
+        let frame_size = frame.size()?;
+        let buffer:Vec<u8> = frame.read_pixels(frame_size)?;
     }
     Ok(())
 }
@@ -69,29 +64,6 @@ To enable tracing for debugging output, add the `tracing` feature and initialize
 [dependencies]
 wgc = { version = "*", features = ["tracing"] }
 tracing-subscriber = "0.3"
-```
-
-```rust
-use wgc::*;
-use tracing_subscriber::EnvFilter;
-
-fn main() -> anyhow::Result<()> {
-    // Initialize tracing
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("debug"));
-    tracing_subscriber::fmt().with_env_filter(filter).init();
-
-    // Rest of your code...
-    let item = new_item_with_picker(None)?;
-    let settings = WgcSettings::default();
-    let wgc = Wgc::new(item, settings)?;
-
-    for frame in wgc {
-        let _frame = frame?;
-        // Process frame...
-    }
-    Ok(())
-}
 ```
 
 Run with environment variable for verbose output:
@@ -113,8 +85,8 @@ cargo run --example hello_world --features tracing
 
 Check out the [examples](./examples/) directory for more detailed usage examples:
 
-- `hello_world.rs`: Basic usage example
-- More examples coming soon...
+- `save_image.rs`: Captures a screen item and saves it as a PNG file to disk.
+- `show_image.rs`: Captures a screen item and displays it in a window.
 
 ## Development Status
 

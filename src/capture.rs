@@ -9,6 +9,10 @@ use windows::{
     Win32::{
         Foundation::{GetLastError, HMODULE},
         Graphics::{
+            Direct2D::{
+                D2D1_DEVICE_CONTEXT_OPTIONS_NONE, D2D1_FACTORY_TYPE_SINGLE_THREADED,
+                D2D1CreateFactory, ID2D1Device, ID2D1DeviceContext, ID2D1Factory1,
+            },
             Direct3D::{D3D_DRIVER_TYPE_HARDWARE, D3D_FEATURE_LEVEL_11_1},
             Direct3D11::*,
             Dxgi::IDXGIDevice,
@@ -34,6 +38,7 @@ pub struct Wgc {
     settings: WgcSettings,
     buffer_size: SizeInt32,
     direct3d_device: IDirect3DDevice,
+    d2d1_context: ID2D1DeviceContext,
 }
 
 impl Wgc {
@@ -45,6 +50,10 @@ impl Wgc {
         let dxgi_device: IDXGIDevice = d3d_device.cast()?;
         let direct3d_device: IDirect3DDevice =
             unsafe { CreateDirect3D11DeviceFromDXGIDevice(&dxgi_device)?.cast()? };
+        let d2d1_factory = create_d2d_factory()?;
+        let d2d1_device: ID2D1Device = unsafe { d2d1_factory.CreateDevice(&dxgi_device) }?;
+        let d2d1_context: ID2D1DeviceContext =
+            unsafe { d2d1_device.CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE) }?;
         assert!(
             settings.frame_queue_length > 0,
             "Frame queue length must be greater than 0"
@@ -53,7 +62,7 @@ impl Wgc {
         let buffer_size = item.Size()?;
         let frame_pool = Direct3D11CaptureFramePool::Create(
             &direct3d_device,
-            settings.pixel_format,
+            settings.pixel_format.into(),
             settings.frame_queue_length,
             buffer_size,
         )?;
@@ -82,6 +91,7 @@ impl Wgc {
             settings,
             direct3d_device,
             buffer_size,
+            d2d1_context,
         })
     }
 }
@@ -106,7 +116,7 @@ impl Iterator for Wgc {
                         );
                         match self.frame_pool.Recreate(
                             &self.direct3d_device,
-                            self.settings.pixel_format,
+                            self.settings.pixel_format.into(),
                             self.settings.frame_queue_length,
                             frame_size,
                         ) {
@@ -117,7 +127,12 @@ impl Iterator for Wgc {
                         }
                     } else {
                         trace!("Got frame");
-                        return Some(Ok(Frame::new(frame)));
+                        let frame = Frame::new(
+                            frame,
+                            self.d2d1_context.clone(),
+                            self.settings.pixel_format,
+                        );
+                        return Some(Ok(frame));
                     }
                 }
                 match GetMessageW(&mut msg, None, 0, 0).0 {
@@ -152,6 +167,13 @@ fn create_d3d_device() -> std::result::Result<ID3D11Device, WgcError> {
         )?;
     }
     Ok(d3d_device.unwrap())
+}
+
+fn create_d2d_factory() -> std::result::Result<ID2D1Factory1, WgcError> {
+    unsafe {
+        D2D1CreateFactory::<ID2D1Factory1>(D2D1_FACTORY_TYPE_SINGLE_THREADED, None)
+            .map_err(|e| e.into())
+    }
 }
 
 fn create_dispatcher_queue_controller() -> std::result::Result<DispatcherQueueController, WgcError>
