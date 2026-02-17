@@ -24,7 +24,7 @@ fn main() -> anyhow::Result<()> {
         let frame = frame?;
         println!("{} {:?}", item.clone().DisplayName()?, frame.size()?);
         let time = std::time::Instant::now();
-        let buffer = frame.get(frame.size()?)?;
+        let buffer = frame.read_pixels(frame.size()?)?;
         let size = frame.size()?;
         let image: ImageBuffer<Rgba<u8>, Vec<u8>> =
             ImageBuffer::from_raw(size.width, size.height, buffer).unwrap();

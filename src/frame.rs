@@ -49,11 +49,14 @@ impl Frame {
         let size = self.frame.ContentSize()?;
         Ok(size.into())
     }
-    pub fn get_with_buffer<'a>(
-        &self,
-        buffer: &'a mut [u8],
-        desired_size: FrameSize,
-    ) -> std::result::Result<(), WgcError> {
+
+    pub fn read_pixels(&self, desired_size: FrameSize) -> std::result::Result<Vec<u8>, WgcError> {
+        let mut buffer = vec![
+            0;
+            (desired_size.width * desired_size.height * self.pixel_format.bytes_per_pixel())
+                as usize
+        ];
+
         let frame_size = self.size()?;
         if frame_size != desired_size {
             let size = D2D_SIZE_U {
@@ -76,22 +79,12 @@ impl Frame {
             todo!();
         } else {
             let bitmap = self.create_bitmap_from_frame()?;
-            self.get_with_buffer_from_bitmap(buffer, frame_size, bitmap)?;
+            self.read_pixels_from_bitmap(&mut buffer, frame_size, bitmap)?;
         }
-        Ok(())
-    }
-
-    pub fn get(&self, desired_size: FrameSize) -> std::result::Result<Vec<u8>, WgcError> {
-        let mut buffer = vec![
-            0;
-            (desired_size.width * desired_size.height * self.pixel_format.bytes_per_pixel())
-                as usize
-        ];
-        self.get_with_buffer(&mut buffer, desired_size)?;
         Ok(buffer)
     }
 
-    fn get_with_buffer_from_bitmap<'a>(
+    fn read_pixels_from_bitmap<'a>(
         &self,
         buffer: &'a mut [u8],
         desired_size: FrameSize,
@@ -111,13 +104,14 @@ impl Frame {
                 | windows::Win32::Graphics::Direct2D::D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
             ..Default::default()
         };
-        let bitmap_cpu = unsafe {
+        let bitmap_cpu_read = unsafe {
             self.d2d1_context
                 .CreateBitmap(size, None, 0, &bitmap_properties)
         }?;
-        unsafe { bitmap_cpu.CopyFromBitmap(None, &bitmap, None) }?;
-        let mapped_rect =
-            unsafe { bitmap_cpu.Map(windows::Win32::Graphics::Direct2D::D2D1_MAP_OPTIONS_READ) }?;
+        unsafe { bitmap_cpu_read.CopyFromBitmap(None, &bitmap, None) }?;
+        let mapped_rect = unsafe {
+            bitmap_cpu_read.Map(windows::Win32::Graphics::Direct2D::D2D1_MAP_OPTIONS_READ)
+        }?;
         let pitch = mapped_rect.pitch as usize;
         let data_ptr = mapped_rect.bits;
 
@@ -128,15 +122,14 @@ impl Frame {
             let src_row = unsafe { std::slice::from_raw_parts(src_ptr, row_bytes) };
             dst_row.copy_from_slice(src_row);
         }
-
-        unsafe { bitmap_cpu.Unmap() }?;
+        unsafe { bitmap_cpu_read.Unmap() }?;
         Ok(())
     }
 
     fn create_bitmap_from_frame(&self) -> std::result::Result<ID2D1Bitmap1, WgcError> {
         let surface = self.frame.Surface()?;
-        let access: IDirect3DDxgiInterfaceAccess = surface.cast()?;
-        let dxgi_surface: IDXGISurface = unsafe { access.GetInterface() }?;
+        let dxgi_access: IDirect3DDxgiInterfaceAccess = surface.cast()?;
+        let dxgi_surface: IDXGISurface = unsafe { dxgi_access.GetInterface() }?;
         let bitmap = unsafe {
             self.d2d1_context
                 .CreateBitmapFromDxgiSurface(&dxgi_surface, None)
