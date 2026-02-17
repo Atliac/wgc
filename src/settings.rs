@@ -16,9 +16,9 @@ pub struct WgcSettings {
 #[derive(Debug, Clone, Copy)]
 pub struct PixelFormat {
     /// The underlying DirectX pixel format.
-    pub(crate) format: DirectXPixelFormat,
+    format: DirectXPixelFormat,
     /// The number of bytes required to store a single pixel.
-    pub(crate) bytes_per_pixel: u32,
+    bytes_per_pixel: u32,
 }
 
 impl PixelFormat {
@@ -64,6 +64,13 @@ impl PixelFormat {
         format: DirectXPixelFormat::B8G8R8A8UIntNormalized,
         bytes_per_pixel: 4,
     };
+
+    pub fn format(&self) -> DirectXPixelFormat {
+        self.format
+    }
+    pub fn bytes_per_pixel(&self) -> u32 {
+        self.bytes_per_pixel
+    }
 }
 
 impl From<PixelFormat> for DirectXPixelFormat {

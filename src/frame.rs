@@ -84,7 +84,7 @@ impl Frame {
     pub fn get(&self, desired_size: FrameSize) -> std::result::Result<Vec<u8>, WgcError> {
         let mut buffer = vec![
             0;
-            (desired_size.width * desired_size.height * self.pixel_format.bytes_per_pixel)
+            (desired_size.width * desired_size.height * self.pixel_format.bytes_per_pixel())
                 as usize
         ];
         self.get_with_buffer(&mut buffer, desired_size)?;
@@ -121,7 +121,7 @@ impl Frame {
         let pitch = mapped_rect.pitch as usize;
         let data_ptr = mapped_rect.bits;
 
-        let row_bytes = (desired_size.width * self.pixel_format.bytes_per_pixel) as usize;
+        let row_bytes = (desired_size.width * self.pixel_format.bytes_per_pixel()) as usize;
 
         for (i, dst_row) in buffer.chunks_exact_mut(row_bytes).enumerate() {
             let src_ptr = unsafe { data_ptr.add(i * pitch) };
