@@ -21,12 +21,18 @@ use windows::{
 pub struct Frame {
     frame: Direct3D11CaptureFrame,
     d2d1_context: ID2D1DeviceContext,
+    pixel_format: PixelFormat,
 }
 impl Frame {
-    pub fn new(frame: Direct3D11CaptureFrame, d2d1_context: ID2D1DeviceContext) -> Self {
+    pub fn new(
+        frame: Direct3D11CaptureFrame,
+        d2d1_context: ID2D1DeviceContext,
+        pixel_format: PixelFormat,
+    ) -> Self {
         Self {
             frame,
             d2d1_context,
+            pixel_format,
         }
     }
 
@@ -56,7 +62,7 @@ impl Frame {
             };
             let bitmap_properties = D2D1_BITMAP_PROPERTIES1 {
                 pixelFormat: D2D1_PIXEL_FORMAT {
-                    format: windows::Win32::Graphics::Dxgi::Common::DXGI_FORMAT_B8G8R8A8_UNORM,
+                    format: self.pixel_format.into(),
                     alphaMode:
                         windows::Win32::Graphics::Direct2D::Common::D2D1_ALPHA_MODE_PREMULTIPLIED,
                 },
@@ -76,7 +82,11 @@ impl Frame {
     }
 
     pub fn get(&self, desired_size: FrameSize) -> std::result::Result<Vec<u8>, WgcError> {
-        let mut buffer = vec![0; (desired_size.width * desired_size.height * 4) as usize];
+        let mut buffer = vec![
+            0;
+            (desired_size.width * desired_size.height * self.pixel_format.bytes_per_pixel)
+                as usize
+        ];
         self.get_with_buffer(&mut buffer, desired_size)?;
         Ok(buffer)
     }
@@ -93,10 +103,7 @@ impl Frame {
         };
         let bitmap_properties = D2D1_BITMAP_PROPERTIES1 {
             pixelFormat: D2D1_PIXEL_FORMAT {
-                //format: windows::Win32::Graphics::Dxgi::Common::DXGI_FORMAT_B8G8R8A8_UNORM,
-                format: windows::Win32::Graphics::Dxgi::Common::DXGI_FORMAT(
-                    windows::Graphics::DirectX::DirectXPixelFormat::R8G8B8A8UIntNormalized.0,
-                ),
+                format: self.pixel_format.into(),
                 alphaMode:
                     windows::Win32::Graphics::Direct2D::Common::D2D1_ALPHA_MODE_PREMULTIPLIED,
             },
@@ -114,8 +121,7 @@ impl Frame {
         let pitch = mapped_rect.pitch as usize;
         let data_ptr = mapped_rect.bits;
 
-        const BYTES_PER_PIXEL: u32 = 4; // BGRA
-        let row_bytes = (desired_size.width * BYTES_PER_PIXEL) as usize;
+        let row_bytes = (desired_size.width * self.pixel_format.bytes_per_pixel) as usize;
 
         for (i, dst_row) in buffer.chunks_exact_mut(row_bytes).enumerate() {
             let src_ptr = unsafe { data_ptr.add(i * pitch) };

@@ -62,7 +62,7 @@ impl Wgc {
         let buffer_size = item.Size()?;
         let frame_pool = Direct3D11CaptureFramePool::Create(
             &direct3d_device,
-            settings.pixel_format,
+            settings.pixel_format.into(),
             settings.frame_queue_length,
             buffer_size,
         )?;
@@ -116,7 +116,7 @@ impl Iterator for Wgc {
                         );
                         match self.frame_pool.Recreate(
                             &self.direct3d_device,
-                            self.settings.pixel_format,
+                            self.settings.pixel_format.into(),
                             self.settings.frame_queue_length,
                             frame_size,
                         ) {
@@ -127,7 +127,12 @@ impl Iterator for Wgc {
                         }
                     } else {
                         trace!("Got frame");
-                        return Some(Ok(Frame::new(frame, self.d2d1_context.clone())));
+                        let frame = Frame::new(
+                            frame,
+                            self.d2d1_context.clone(),
+                            self.settings.pixel_format,
+                        );
+                        return Some(Ok(frame));
                     }
                 }
                 match GetMessageW(&mut msg, None, 0, 0).0 {
