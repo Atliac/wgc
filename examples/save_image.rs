@@ -11,31 +11,29 @@ fn main() -> anyhow::Result<()> {
     // pick an item to capture
     let item = new_item_with_picker(None)?;
 
-    // set up wgc
-    let settings = WgcSettings {
-        frame_queue_length: 1,
-        ..Default::default()
-    };
+    let wgc = Wgc::new(item.clone(), Default::default())?;
+    let image_path = "target/a.png";
 
-    let wgc = Wgc::new(item.clone(), settings)?;
-
-    // wgc is an iterator, let's take 3 frames
+    // wgc is an iterator
     for frame in wgc.take(1) {
         let frame = frame?;
         println!("{} {:?}", item.clone().DisplayName()?, frame.size()?);
         let time = std::time::Instant::now();
-        let size = FrameSize {
-            width: 2200,
-            height: 1200,
-        };
-        let buffer = frame.read_pixels(size)?;
-        let image: ImageBuffer<Rgba<u8>, Vec<u8>> =
-            ImageBuffer::from_raw(size.width, size.height, buffer).unwrap();
+        let frame_size = frame.size()?;
+        let buffer = frame.read_pixels(frame_size)?;
 
-        println!("time: {:?}", time.elapsed());
+        // use image crate to save the image
+        let image: ImageBuffer<Rgba<u8>, Vec<u8>> =
+            ImageBuffer::from_raw(frame_size.width, frame_size.height, buffer).unwrap();
+
+        println!("wgc: Read pixels in {:?}", time.elapsed());
         let time = std::time::Instant::now();
-        image.save("target/a.png").unwrap();
-        println!("time: {:?}", time.elapsed());
+        image.save(image_path).unwrap();
+        println!(
+            "image: Saved in {:?}, Saved to `{}`. This can be slow in debug builds",
+            time.elapsed(),
+            image_path
+        );
     }
     Ok(())
 }
