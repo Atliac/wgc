@@ -6,10 +6,9 @@ use windows::{
     Win32::{
         Graphics::{
             Direct2D::{
-                Common::{D2D_POINT_2U, D2D_SIZE_U, D2D1_PIXEL_FORMAT},
-                D2D1_BITMAP_PROPERTIES1, D2D1_DEVICE_CONTEXT_OPTIONS_NONE,
-                D2D1_FACTORY_TYPE_SINGLE_THREADED, D2D1_MAPPED_RECT, D2D1CreateFactory,
-                ID2D1Bitmap1, ID2D1Device, ID2D1DeviceContext, ID2D1Factory1,
+                Common::{D2D_RECT_F, D2D_SIZE_U, D2D1_COLOR_F, D2D1_PIXEL_FORMAT},
+                D2D1_BITMAP_PROPERTIES1, D2D1_INTERPOLATION_MODE_LINEAR, ID2D1Bitmap1,
+                ID2D1DeviceContext,
             },
             Dxgi::IDXGISurface,
         },
@@ -58,35 +57,86 @@ impl Frame {
         ];
 
         let frame_size = self.size()?;
+        let frame_bitmap = self.create_bitmap_from_frame()?;
+
         if frame_size != desired_size {
-            let size = D2D_SIZE_U {
-                width: desired_size.width,
-                height: desired_size.height,
-            };
-            let bitmap_properties = D2D1_BITMAP_PROPERTIES1 {
-                pixelFormat: D2D1_PIXEL_FORMAT {
-                    format: self.pixel_format.into(),
-                    alphaMode:
-                        windows::Win32::Graphics::Direct2D::Common::D2D1_ALPHA_MODE_PREMULTIPLIED,
-                },
-                bitmapOptions: windows::Win32::Graphics::Direct2D::D2D1_BITMAP_OPTIONS_TARGET,
-                ..Default::default()
-            };
-            let bitmap = unsafe {
-                self.d2d1_context
-                    .CreateBitmap(size, None, 0, &bitmap_properties)
-            }?;
-            todo!();
+            let canvas_bitmap = self.create_canvas_bitmap(desired_size)?;
+
+            unsafe {
+                self.d2d1_context.BeginDraw();
+                self.d2d1_context.SetTarget(&canvas_bitmap);
+                let letterbox_color = D2D1_COLOR_F {
+                    r: 0.5,
+                    g: 0.5,
+                    b: 0.5,
+                    a: 1.0,
+                };
+                self.d2d1_context.Clear(Some(&letterbox_color));
+
+                // Calculate the scale factor to maintain aspect ratio
+                let src_w = frame_size.width as f32;
+                let src_h = frame_size.height as f32;
+                let dst_w = desired_size.width as f32;
+                let dst_h = desired_size.height as f32;
+                let scale = (dst_w / src_w).min(dst_h / src_h);
+
+                // Determine the new dimensions
+                let final_w = src_w * scale;
+                let final_h = src_h * scale;
+
+                let x = (dst_w - final_w) / 2.0;
+                let y = (dst_h - final_h) / 2.0;
+
+                // Create the destination rectangle
+                let dest_rect = D2D_RECT_F {
+                    left: x,
+                    top: y,
+                    right: x + final_w,
+                    bottom: y + final_h,
+                };
+
+                self.d2d1_context.DrawBitmap(
+                    &frame_bitmap,
+                    Some(&dest_rect),
+                    1.0, // Opacity
+                    D2D1_INTERPOLATION_MODE_LINEAR,
+                    None,
+                    None,
+                );
+
+                self.d2d1_context.EndDraw(None, None)?;
+            }
+            self.read_pixels_from_bitmap(&mut buffer, desired_size, canvas_bitmap)?;
         } else {
-            let bitmap = self.create_bitmap_from_frame()?;
-            self.read_pixels_from_bitmap(&mut buffer, frame_size, bitmap)?;
+            self.read_pixels_from_bitmap(&mut buffer, frame_size, frame_bitmap)?;
         }
         Ok(buffer)
     }
 
-    fn read_pixels_from_bitmap<'a>(
+    fn create_canvas_bitmap(&self, size: FrameSize) -> std::result::Result<ID2D1Bitmap1, WgcError> {
+        let size = D2D_SIZE_U {
+            width: size.width,
+            height: size.height,
+        };
+        let bitmap_properties = D2D1_BITMAP_PROPERTIES1 {
+            pixelFormat: D2D1_PIXEL_FORMAT {
+                format: self.pixel_format.into(),
+                alphaMode:
+                    windows::Win32::Graphics::Direct2D::Common::D2D1_ALPHA_MODE_PREMULTIPLIED,
+            },
+            bitmapOptions: windows::Win32::Graphics::Direct2D::D2D1_BITMAP_OPTIONS_TARGET,
+            ..Default::default()
+        };
+        let bitmap = unsafe {
+            self.d2d1_context
+                .CreateBitmap(size, None, 0, &bitmap_properties)
+        }?;
+        Ok(bitmap)
+    }
+
+    fn read_pixels_from_bitmap(
         &self,
-        buffer: &'a mut [u8],
+        buffer: &mut [u8],
         desired_size: FrameSize,
         bitmap: ID2D1Bitmap1,
     ) -> std::result::Result<(), WgcError> {
@@ -160,12 +210,5 @@ impl From<SizeInt32> for FrameSize {
         let width = width.max(0) as u32;
         let height = height.max(0) as u32;
         Self { width, height }
-    }
-}
-
-fn create_d2d_factory() -> std::result::Result<ID2D1Factory1, WgcError> {
-    unsafe {
-        D2D1CreateFactory::<ID2D1Factory1>(D2D1_FACTORY_TYPE_SINGLE_THREADED, None)
-            .map_err(|e| e.into())
     }
 }
