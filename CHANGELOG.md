@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.3](https://github.com/Atliac/wgc/compare/v0.0.2...v0.0.3) - 2026-02-17
+
+### Added
+
+- the core feature has been completed. ([#11](https://github.com/Atliac/wgc/pull/11))
+
 ## [0.0.2](https://github.com/Atliac/wgc/compare/v0.0.1...v0.0.2) - 2026-01-28
 
 ### Other
