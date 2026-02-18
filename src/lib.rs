@@ -1,4 +1,11 @@
-//! A simple wrapper for Windows Graphics Capture
+//! An ergonomic, high-level Rust wrapper for the Windows.Graphics.Capture API.
+//!
+//! This crate provides safe and idiomatic Rust bindings for screen and window capture
+//! functionality on Windows.
+//!
+//! **Repository:** [GitHub](https://github.com/Atliac/wgc)
+//!
+//! **Getting Started:** [Tutorial](https://github.com/Atliac/wgc/blob/master/examples/tutorial.rs)
 
 // A macro that does nothing.
 #[cfg(not(feature = "tracing"))]
@@ -32,6 +39,10 @@ pub use error::*;
 mod utils {
     pub mod picker;
     pub use picker::*;
+    pub mod window;
+    pub use window::*;
+    pub mod monitor;
+    pub use monitor::*;
     pub(crate) mod qpc;
     pub(crate) use qpc::*;
 }
