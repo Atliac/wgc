@@ -30,6 +30,46 @@ use windows::{
 
 use crate::*;
 
+/// The main entry point for Windows Graphics Capture (WGC) functionality.
+///
+/// `Wgc` represents a capture session that streams frames from a capture source
+/// (window, monitor, or user-selected item). It implements [`Iterator`] to yield
+/// captured frames one by one.
+///
+/// # Usage Example
+/// ```ignore
+/// use wgc::*;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// // 1. Create a capture item (e.g., from a window handle or monitor)
+/// let hwnd = /* obtain window handle */;
+/// let item = wgc::new_item_from_hwnd(hwnd)?;
+///
+/// // 2. Configure capture settings
+/// let settings = WgcSettings {
+///     frame_queue_length: 3,
+///     ..Default::default()
+/// };
+///
+/// // 3. Initialize the capture session
+/// let wgc = Wgc::new(item, settings)?;
+///
+/// // 4. Capture frames (Wgc implements Iterator)
+/// for frame_result in wgc.take(10) {
+///     let frame = frame_result?;
+///     // Process the frame...
+///     println!("Frame captured at {:?}", frame.render_time()?);
+/// }
+/// # Ok(())
+/// # }
+/// ```
+///
+/// # Important Notes
+/// - The `Wgc` struct owns all capture resources and must be kept alive while capturing.
+/// - It implements [`Iterator`] with [`Frame`] as the item type (wrapped in `Result`).
+/// - The iterator will block until a frame is available or an error occurs.
+/// - Use [`WgcSettings`] to configure frame buffering, pixel format, and other options.
+///
 pub struct Wgc {
     _session: GraphicsCaptureSession,
     _control: DispatcherQueueController,
