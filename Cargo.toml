@@ -52,6 +52,10 @@ windows = { version = "0.62.2", features = [
 ] }
 tracing = { version = "0.1.44", optional = true }
 
+[[example]]
+name = "tutorial"
+required-features = ["tracing"]
+
 [dev-dependencies]
 anyhow = "1.0.100"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

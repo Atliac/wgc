@@ -2,7 +2,7 @@ use image::{ImageBuffer, Rgba};
 use wgc::*;
 
 fn main() -> anyhow::Result<()> {
-    // run with `cargo run --example hello_world --features tracing` to see debug output,
+    // run with `cargo run --example save_image --features tracing` to see debug output,
     // set `RUST_LOG=trace` environment variable to see verbose output
     use tracing_subscriber::EnvFilter;
     let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
