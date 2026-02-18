@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0](https://github.com/Atliac/wgc/compare/v0.0.9...v1.0.0) - 2026-02-18
+
+### Added
+
+- [**breaking**] bump to v1.0.0 with optional frame scaling in read_pixels ([#25](https://github.com/Atliac/wgc/pull/25))
+
 ## [0.0.9](https://github.com/Atliac/wgc/compare/v0.0.8...v0.0.9) - 2026-02-18
 
 ### Added
