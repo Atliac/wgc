@@ -11,6 +11,38 @@ use windows::{
 use windows_future::AsyncStatus;
 
 #[cfg_attr(feature = "tracing", tracing::instrument(level = "debug", skip_all))]
+/// Presents a picker UI to allow the user to select a window or monitor for graphics capture.
+///
+/// This function creates a `GraphicsCapturePicker` and displays the Windows built-in picker UI,
+/// which allows the user to interactively choose a window or monitor to capture. The function
+/// handles the message pump required for the picker UI to function correctly.
+///
+/// # Arguments
+///
+/// * `owner_window` - An optional `HWND` handle for the owner window. If provided, the picker
+///   UI will be modal to this window. If `None`, a hidden temporary window is created and used
+///   as the owner.
+///
+/// # Returns
+///
+/// * `Ok(GraphicsCaptureItem)` - A graphics capture item representing the user's selection.
+/// * `Err(WgcError)` - An error occurred during the process, such as:
+///   - The picker could not be created.
+///   - The window initialization failed.
+///   - The user cancelled the picker (returns `WgcError::NoItemSelected`).
+///   - A Windows API error occurred during async operation.
+///
+/// # Safety
+///
+/// This function uses unsafe code for window message handling and interop calls.
+///
+/// # Example
+///
+/// ```ignore
+/// use windows::Win32::Foundation::HWND;
+/// let owner hwnd = /* obtain HWND handle or None */;
+/// let capture_item = new_item_with_picker(Some(hwnd))?;
+/// ```
 pub fn new_item_with_picker(
     owner_window: Option<HWND>,
 ) -> std::result::Result<GraphicsCaptureItem, WgcError> {
