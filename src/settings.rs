@@ -106,7 +106,7 @@ pub struct WgcSettings {
     /// the desired output size. Different methods offer trade-offs between performance
     /// and visual quality.
     ///
-    /// Defaults to [`FrameScalingMethod::Linear`].
+    /// Defaults to [`FrameInterpolationMode::Linear`].
     #[default(FrameInterpolationMode::Linear)]
     pub frame_interpolation_mode: FrameInterpolationMode,
 }
