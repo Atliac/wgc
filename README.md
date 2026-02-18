@@ -7,28 +7,23 @@
 
 A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling screen/window capture on Windows 10/11.
 
-## Features
+**Realtime & AI-optimized** capture for ML and computer vision workflows.
 
-- Easy-to-use iterator interface for capturing frames
-- Support for capturing windows, monitors
-- Automatic handling of resolution changes during capture
-- Optional tracing support for debugging
-- Low-level access to Direct3D11 frames when needed
+## Features
+- Realtime & AI-optimized: Capture any window or monitor at any resolution and resize in real-time using letterbox scaling. Ideal for ML pipelines, streaming, and computer vision applications.
+- Ergonomic iterator-based API for capturing frames via the `Wgc` struct
+- Interactive picker dialog for selecting windows or monitors to capture
+- Configurable pixel formats (currently `RGBA8` and `BGRA8`, with more formats planned) via `WgcSettings`
+- Automatic buffer recreation when capture resolution changes
+- Frame size normalization with letterboxing for consistent output dimensions
+- Optional `tracing` feature for debug logging
+- Zero-copy frame access with efficient DirectX/Direct2D integration
 
 ## Requirements
 
 - Windows 10 October 2018 Update (version 1809) or later
 - Windows 11 (recommended)
 - Rust 2024 edition
-
-## Installation
-
-Add this to your `Cargo.toml`:
-
-```toml
-[dependencies]
-wgc = "*"
-```
 
 ## Usage
 
@@ -58,35 +53,13 @@ fn main() -> anyhow::Result<()> {
 }
 ```
 
-To enable tracing for debugging output, add the `tracing` feature and initialize a subscriber:
-
-```toml
-[dependencies]
-wgc = { version = "*", features = ["tracing"] }
-tracing-subscriber = "0.3"
-```
-
-Run with environment variable for verbose output:
-
-```cmd
-set RUST_LOG=trace
-cargo run --example hello_world --features tracing
-
-```
-
-Or in PowerShell:
-
-```powershell
-$env:RUST_LOG="trace"
-cargo run --example hello_world --features tracing
-```
-
 ## Examples
 
 Check out the [examples](./examples/) directory for more detailed usage examples:
 
-- `save_image.rs`: Captures a screen item and saves it as a PNG file to disk.
-- `show_image.rs`: Captures a screen item and displays it in a window.
+- [save_image](./examples/save_image.rs): Captures a screen item and saves it as an image file to disk.
+- [show_image](./examples/show_image.rs): Captures a screen item and displays it in a window.
+- [tutorial](./examples/tutorial.rs): Provides a comprehensive tutorial on wgc for those who wish to leverage most of its features.
 
 ## Development Status
 

@@ -3,7 +3,7 @@ use wgc::*;
 
 #[show_image::main]
 fn main() -> anyhow::Result<()> {
-    // run with `cargo run --example hello_world --features tracing` to see debug output,
+    // run with `cargo run --example show_image --features tracing` to see debug output,
     // set `RUST_LOG=wgc=trace` environment variable to see verbose output
     use tracing_subscriber::EnvFilter;
     let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("wgc=debug"));
