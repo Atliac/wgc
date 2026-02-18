@@ -1,11 +1,105 @@
+use std::time::Duration;
 use windows::{Graphics::DirectX::DirectXPixelFormat, Win32::Graphics::Dxgi::Common::DXGI_FORMAT};
 
+/// Configuration settings for Windows Graphics Capture (WGC).
+///
+/// This struct allows you to customize various aspects of the capture session.
+///
+/// # Capability Checks
+///
+/// Fields of type `Option<T>` can only be set to `Some(value)` if the corresponding
+/// capability check function in [`crate::capabilities`] returns `true`. Attempting to
+/// configure these options on unsupported Windows versions will result in an error.
+///
+/// ## Optional Fields and Their Capability Functions
+///
+/// | Field | Capability Function |
+/// |-------|---------------------|
+/// | [`capture_cursor`](#structfield.capture_cursor) | [`is_cursor_configurable()`](crate::capabilities::is_cursor_configurable) |
+/// | [`display_border`](#structfield.display_border) | [`is_border_configurable()`](crate::capabilities::is_border_configurable) |
+/// | [`include_secondary_windows`](#structfield.include_secondary_windows) | [`is_include_secondary_windows_configurable()`](crate::capabilities::is_include_secondary_windows_configurable) |
+/// | [`dirty_region_mode`](#structfield.dirty_region_mode) | [`is_dirty_region_mode_configurable()`](crate::capabilities::is_dirty_region_mode_configurable) |
+/// | [`min_update_interval`](#structfield.min_update_interval) | [`is_min_update_interval_configurable()`](crate::capabilities::is_min_update_interval_configurable) |
+///
+/// # Example
+///
+/// ```
+/// use wgc::settings::{WgcSettings, PixelFormat};
+/// use std::time::Duration;
+///
+/// // Always safe to set non-optional fields
+/// let settings = WgcSettings {
+///     pixel_format: PixelFormat::RGBA8,
+///     frame_queue_length: 2,
+///     ..Default::default()
+/// };
+/// ```
 #[derive(smart_default::SmartDefault, Debug, Clone, Copy)]
 pub struct WgcSettings {
+    /// The pixel format for capture output.
+    ///
+    /// Defaults to [`PixelFormat::RGBA8`].
     #[default(PixelFormat::RGBA8)]
     pub pixel_format: PixelFormat,
+    /// The number of frames to queue for capture.
+    ///
+    /// Controls the buffer depth for frame capture. Higher values may increase latency
+    /// but can help prevent frame drops.
+    ///
+    /// Defaults to `1`.
     #[default(1)]
     pub frame_queue_length: i32,
+    /// Whether to capture the cursor in the output.
+    ///
+    /// Set this field to `Some(true)` to include the cursor, or `Some(false)` to exclude it.
+    /// Leave as `None` to use the system default behavior.
+    ///
+    /// **Note:** This field can only be set to `Some(...)` if
+    /// [`is_cursor_configurable()`](crate::capabilities::is_cursor_configurable) returns `true`.
+    #[default(None)]
+    pub capture_cursor: Option<bool>,
+    /// Whether to display the capture border around the captured window.
+    ///
+    /// Set this field to `Some(true)` to show the border, or `Some(false)` to hide it.
+    /// Leave as `None` to use the system default behavior.
+    ///
+    /// **Note:** This field can only be set to `Some(...)` if
+    /// [`is_border_configurable()`](crate::capabilities::is_border_configurable) returns `true`.
+    #[default(None)]
+    pub display_border: Option<bool>,
+    /// Whether to include secondary windows in the capture.
+    ///
+    /// Set this field to `Some(true)` to include child/pop-up windows, or `Some(false)`
+    /// to capture only the main window. Leave as `None` to use the system default behavior.
+    ///
+    /// **Note:** This field can only be set to `Some(...)` if
+    /// [`is_include_secondary_windows_configurable()`](crate::capabilities::is_include_secondary_windows_configurable)
+    /// returns `true`.
+    #[default(None)]
+    pub include_secondary_windows: Option<bool>,
+    /// The dirty region mode for capture optimization.
+    ///
+    /// Set this field to `Some(true)` to enable dirty region tracking, or `Some(false)`
+    /// to disable it. Leave as `None` to use the system default behavior.
+    ///
+    /// Dirty regions allow the capture system to only report areas of the screen that
+    /// have changed, which can improve performance.
+    ///
+    /// **Note:** This field can only be set to `Some(...)` if
+    /// [`is_dirty_region_mode_configurable()`](crate::capabilities::is_dirty_region_mode_configurable)
+    /// returns `true`.
+    #[default(None)]
+    pub dirty_region_mode: Option<bool>,
+    /// The minimum update interval for frame captures.
+    ///
+    /// Set this field to `Some(duration)` to throttle the capture rate, or `None` to
+    /// capture as fast as possible.
+    ///
+    /// **Note:** This field can only be set to `Some(...)` if
+    /// [`is_min_update_interval_configurable()`](crate::capabilities::is_min_update_interval_configurable)
+    /// returns `true`.
+    #[default(None)]
+    pub min_update_interval: Option<Duration>,
 }
 
 /// Specifies the pixel format for capture output.
