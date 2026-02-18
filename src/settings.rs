@@ -100,6 +100,67 @@ pub struct WgcSettings {
     /// returns `true`.
     #[default(None)]
     pub min_update_interval: Option<Duration>,
+    /// The interpolation mode used for scaling frames.
+    ///
+    /// This setting controls how frames are scaled when the capture size differs from
+    /// the desired output size. Different methods offer trade-offs between performance
+    /// and visual quality.
+    ///
+    /// Defaults to [`FrameScalingMethod::Linear`].
+    #[default(FrameInterpolationMode::Linear)]
+    pub frame_interpolation_mode: FrameInterpolationMode,
+}
+
+/// Specifies the interpolation method used for scaling frames.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FrameInterpolationMode {
+    /// Samples the nearest single point and uses that exact color.
+    ///
+    /// This mode requires the least processing time but produces the lowest quality image.
+    /// It is best suited for scenarios where performance is critical and visual fidelity is secondary.
+    NearestNeighbor,
+
+    /// Uses a four-point sample with linear interpolation.
+    ///
+    /// This mode requires more processing time than [`Self::NearestNeighbor`] but produces
+    /// a higher quality image by smoothing transitions between pixels.
+    Linear,
+
+    /// Uses a 16-sample cubic kernel for interpolation.
+    ///
+    /// This mode requires the most processing time among the standard interpolation methods
+    /// but produces a higher quality image with smoother curves and better detail preservation
+    /// compared to [`Self::Linear`].
+    Cubic,
+
+    /// Uses four linear samples within a single pixel to provide effective edge anti-aliasing.
+    ///
+    /// This mode is particularly effective when scaling down by small factors on images
+    /// with low resolution or few pixels, helping to reduce jagged edges.
+    MultiSampleLinear,
+
+    /// Uses a variable-size, high-quality cubic kernel to pre-downscale the image if
+    /// downscaling is involved in the transform matrix, followed by cubic interpolation
+    /// for the final output.
+    ///
+    /// This mode offers the highest visual quality for complex scaling operations, especially
+    /// when significant downscaling is required, at the cost of increased processing time.
+    HighQualityCubic,
+}
+
+impl From<FrameInterpolationMode> for windows::Win32::Graphics::Direct2D::D2D1_INTERPOLATION_MODE {
+    fn from(value: FrameInterpolationMode) -> Self {
+        use windows::Win32::Graphics::Direct2D::*;
+        match value {
+            FrameInterpolationMode::NearestNeighbor => D2D1_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
+            FrameInterpolationMode::Linear => D2D1_INTERPOLATION_MODE_LINEAR,
+            FrameInterpolationMode::Cubic => D2D1_INTERPOLATION_MODE_CUBIC,
+            FrameInterpolationMode::MultiSampleLinear => {
+                D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR
+            }
+            FrameInterpolationMode::HighQualityCubic => D2D1_INTERPOLATION_MODE_HIGH_QUALITY_CUBIC,
+        }
+    }
 }
 
 /// Specifies the pixel format for capture output.

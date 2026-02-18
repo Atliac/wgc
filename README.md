@@ -61,12 +61,6 @@ Check out the [examples](./examples/) directory for more detailed usage examples
 - [show_image](./examples/show_image.rs): Captures a screen item and displays it in a window.
 - [tutorial](./examples/tutorial.rs): Provides a comprehensive tutorial on wgc for those who wish to leverage most of its features.
 
-## Development Status
-
-This crate is currently under active development. Features may be added, removed, or changed in future releases. Please check back regularly for updates.
-
-API stability is not guaranteed until version 1.0.0 is released.
-
 ## License
 
 Licensed under either of
