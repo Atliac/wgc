@@ -115,6 +115,26 @@ impl Wgc {
         )?;
         let session = frame_pool.CreateCaptureSession(&item)?;
 
+        if let Some(capture_cursor) = settings.capture_cursor {
+            session.SetIsCursorCaptureEnabled(capture_cursor)?;
+        }
+
+        if let Some(include_secondary_windows) = settings.include_secondary_windows {
+            session.SetIncludeSecondaryWindows(include_secondary_windows)?;
+        }
+
+        if let Some(display_border) = settings.display_border {
+            session.SetIsBorderRequired(display_border)?;
+        }
+
+        if let Some(_dirty_region_mode) = settings.dirty_region_mode {
+            unimplemented!("dirty_region_mode is not yet implemented");
+        }
+
+        if let Some(min_update_interval) = settings.min_update_interval {
+            session.SetMinUpdateInterval(min_update_interval.into())?;
+        }
+
         item.Closed(
             &TypedEventHandler::<GraphicsCaptureItem, IInspectable>::new(move |_item, _| {
                 debug!("Item closed, stopping capture");
