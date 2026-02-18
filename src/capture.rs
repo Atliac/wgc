@@ -191,6 +191,7 @@ impl Iterator for Wgc {
                             frame,
                             self.d2d1_context.clone(),
                             self.settings.pixel_format,
+                            self.settings,
                         );
                         return Some(Ok(frame));
                     }

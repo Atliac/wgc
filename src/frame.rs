@@ -7,8 +7,7 @@ use windows::{
         Graphics::{
             Direct2D::{
                 Common::{D2D_RECT_F, D2D_SIZE_U, D2D1_COLOR_F, D2D1_PIXEL_FORMAT},
-                D2D1_BITMAP_PROPERTIES1, D2D1_INTERPOLATION_MODE_LINEAR, ID2D1Bitmap1,
-                ID2D1DeviceContext,
+                D2D1_BITMAP_PROPERTIES1, ID2D1Bitmap1, ID2D1DeviceContext,
             },
             Dxgi::IDXGISurface,
         },
@@ -21,17 +20,20 @@ pub struct Frame {
     frame: Direct3D11CaptureFrame,
     d2d1_context: ID2D1DeviceContext,
     pixel_format: PixelFormat,
+    wgc_settings: WgcSettings,
 }
 impl Frame {
     pub fn new(
         frame: Direct3D11CaptureFrame,
         d2d1_context: ID2D1DeviceContext,
         pixel_format: PixelFormat,
+        wgc_settings: WgcSettings,
     ) -> Self {
         Self {
             frame,
             d2d1_context,
             pixel_format,
+            wgc_settings,
         }
     }
 
@@ -99,7 +101,7 @@ impl Frame {
                     &frame_bitmap,
                     Some(&dest_rect),
                     1.0, // Opacity
-                    D2D1_INTERPOLATION_MODE_LINEAR,
+                    self.wgc_settings.frame_interpolation_mode.into(),
                     None,
                     None,
                 );
