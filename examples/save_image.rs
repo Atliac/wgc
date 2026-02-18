@@ -20,7 +20,7 @@ fn main() -> anyhow::Result<()> {
         println!("{} {:?}", item.clone().DisplayName()?, frame.size()?);
         let time = std::time::Instant::now();
         let frame_size = frame.size()?;
-        let buffer = frame.read_pixels(frame_size)?;
+        let buffer = frame.read_pixels(None)?;
 
         // use image crate to save the image
         let image: ImageBuffer<Rgba<u8>, Vec<u8>> =
