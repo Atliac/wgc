@@ -35,6 +35,8 @@ pub mod capture;
 pub use capture::*;
 pub mod error;
 pub use error::*;
+pub mod capabilities;
+pub use capabilities::*;
 
 mod utils {
     pub mod picker;
