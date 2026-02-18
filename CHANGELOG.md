@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.5](https://github.com/Atliac/wgc/compare/v0.0.4...v0.0.5) - 2026-02-18
+
+### Added
+
+- *(utils)* add window and monitor capture helpers ([#15](https://github.com/Atliac/wgc/pull/15))
+
 ## [0.0.4](https://github.com/Atliac/wgc/compare/v0.0.3...v0.0.4) - 2026-02-18
 
 ### Other
