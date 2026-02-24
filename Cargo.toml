@@ -57,7 +57,7 @@ name = "tutorial"
 required-features = ["tracing"]
 
 [dev-dependencies]
-anyhow = "1.0.100"
+anyhow = "1.0.102"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 image = "0.25.9"
 show-image = "0.14.1"
