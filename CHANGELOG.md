@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1](https://github.com/Atliac/wgc/compare/v1.0.0...v1.0.1) - 2026-02-24
+
+### Other
+
+- *(deps)* bump anyhow from 1.0.101 to 1.0.102 ([#27](https://github.com/Atliac/wgc/pull/27))
+
 ## [1.0.0](https://github.com/Atliac/wgc/compare/v0.0.9...v1.0.0) - 2026-02-18
 
 ### Added
