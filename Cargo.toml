@@ -59,7 +59,7 @@ required-features = ["tracing"]
 [dev-dependencies]
 anyhow = "1.0.102"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-image = "0.25.9"
+image = "0.25.10"
 show-image = "0.14.1"
 
 [features]
