@@ -8,7 +8,7 @@ jobs:
   # Release unpublished packages.
   release-plz-release:
     name: Release-plz release
-    runs-on: ubuntu-latest
+    runs-on: windows-latest # <--- Windows is required
     if: github.repository == 'Atliac/wgc'
     permissions:
       contents: write # To push tags and releases
