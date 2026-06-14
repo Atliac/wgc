@@ -4,6 +4,8 @@
 [![Documentation](https://docs.rs/wgc/badge.svg)](https://docs.rs/wgc)
 [![License](https://img.shields.io/crates/l/wgc)](https://github.com/atliac/wgc/blob/master/LICENSE)
 [![Rust (Windows)](https://github.com/Atliac/wgc/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/Atliac/wgc/actions/workflows/rust.yml)
+[![Stability: Stable](https://img.shields.io/badge/stability-stable-brightgreen)](https://github.com/atliac/wgc)
+[![Maintenance: Active](https://img.shields.io/badge/maintenance-active-blue)](https://github.com/atliac/wgc)
 
 A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling screen/window capture on Windows 10/11.
 
@@ -23,7 +25,6 @@ A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling s
 
 - Windows 10 October 2018 Update (version 1809) or later
 - Windows 11 (recommended)
-- Rust 2024 edition
 
 ## Usage
 
@@ -45,7 +46,7 @@ fn main() -> anyhow::Result<()> {
         println!("Captured frame from {} with size {:?}",
                  item.clone().DisplayName()?,
                  frame.size()?);
-        
+
         let frame_size = frame.size()?;
         let buffer:Vec<u8> = frame.read_pixels(frame_size)?;
     }
