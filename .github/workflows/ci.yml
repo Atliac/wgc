@@ -1,0 +1,101 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+# Cancel in-progress runs if a new commit is pushed to the same pull request
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  # ==============================================================================
+  # Job 1: Check Code Formatting
+  # Runs on Linux because code styling is OS-agnostic.
+  # Running this on Windows/macOS is redundant and consumes extra CI minutes.
+  # ==============================================================================
+  fmt:
+    name: CI-Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: rustfmt
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+  # ==============================================================================
+  # Job 2: Run Clippy Lints (On all platforms)
+  # Helpful if your workspace uses platform-specific conditional compilation
+  # (e.g., #[cfg(target_os = "windows")]), which triggers different lints on different OSs.
+  # ==============================================================================
+  clippy:
+    name: CI-Clippy (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false # Keep running on other OSs even if one fails
+      matrix:
+        os: [windows-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: clippy
+
+      - name: Run Clippy (warnings as errors)
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+  # ==============================================================================
+  # Job 3: Run Tests (On all platforms)
+  # Crucial for verifying platform-specific behaviors, file systems, and OS-specific APIs.
+  # ==============================================================================
+  test:
+    name: CI-Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Run all workspace tests
+        run: cargo test --workspace --all-features
+
+  # ==============================================================================
+  # Job 4: Build and Verify Documentation (On all platforms)
+  # Ensures rustdoc compiles successfully across all operating systems.
+  # ==============================================================================
+  docs:
+    name: CI-Docs (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Build documentation (warnings as errors)
+        run: cargo doc --no-deps --workspace --all-features
+        env:
+          RUSTDOCFLAGS: "-D warnings"
