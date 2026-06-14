@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "master" ]
 
+permissions:
+  contents: read
+
 # Cancel in-progress runs if a new commit is pushed to the same pull request
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
