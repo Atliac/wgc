@@ -3,7 +3,7 @@
 [![Crates.io](https://img.shields.io/crates/v/wgc)](https://crates.io/crates/wgc)
 [![Documentation](https://docs.rs/wgc/badge.svg)](https://docs.rs/wgc)
 [![License](https://img.shields.io/crates/l/wgc)](https://github.com/atliac/wgc/blob/master/LICENSE)
-[![Rust (Windows)](https://github.com/Atliac/wgc/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/Atliac/wgc/actions/workflows/rust.yml)
+[![Rust CI](https://github.com/Atliac/wgc/actions/workflows/ci.yml/badge.svg)](https://github.com/Atliac/wgc/actions/workflows/ci.yml)
 [![Stability: Stable](https://img.shields.io/badge/stability-stable-brightgreen)](https://github.com/atliac/wgc)
 [![Maintenance: Active](https://img.shields.io/badge/maintenance-active-blue)](https://github.com/atliac/wgc)
 
