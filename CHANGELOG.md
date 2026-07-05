@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.6](https://github.com/Atliac/wgc/compare/v1.0.5...v1.0.6) - 2026-07-05
+
+### Other
+
+- *(deps)* bump anyhow from 1.0.102 to 1.0.103 ([#42](https://github.com/Atliac/wgc/pull/42))
+- *(deps)* bump actions/checkout from 6 to 7 ([#40](https://github.com/Atliac/wgc/pull/40))
+
 ## [1.0.5](https://github.com/Atliac/wgc/compare/v1.0.4...v1.0.5) - 2026-06-14
 
 ### Other
