@@ -1,3 +1,5 @@
+
+
 # wgc - Windows Graphics Capture Wrapper
 
 [![Crates.io](https://img.shields.io/crates/v/wgc)](https://crates.io/crates/wgc)
@@ -47,8 +49,7 @@ fn main() -> anyhow::Result<()> {
                  item.clone().DisplayName()?,
                  frame.size()?);
 
-        let frame_size = frame.size()?;
-        let buffer:Vec<u8> = frame.read_pixels(frame_size)?;
+        let buffer: Vec<u8> = frame.read_pixels(None)?;
     }
     Ok(())
 }
