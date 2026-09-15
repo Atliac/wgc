@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0](https://github.com/Atliac/wgc/compare/v1.0.7...v2.0.0) - 2026-09-15
+
+### Other
+
+- Update to 2.0.0 ([#52](https://github.com/Atliac/wgc/pull/52))
+- change release-plz PR job to run on windows-latest ([#50](https://github.com/Atliac/wgc/pull/50))
+- *(deps)* bump actions-rust-lang/setup-rust-toolchain from 1 to 2 ([#49](https://github.com/Atliac/wgc/pull/49))
+
 ## [1.0.7](https://github.com/Atliac/wgc/compare/v1.0.6...v1.0.7) - 2026-08-13
 
 ### Other
