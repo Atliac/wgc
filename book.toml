@@ -1,0 +1,13 @@
+[book]
+authors = ["Atliac"]
+language = "en"
+src = "docs"
+title = "wgc Tutorial"
+
+[build]
+build-dir = "book"
+create-missing = true
+
+[output.html]
+git-repository-url = "https://github.com/Atliac/wgc"
+edit-url-template = "https://github.com/Atliac/wgc/edit/main/docs/{path}"
