@@ -9,5 +9,6 @@ build-dir = "book"
 create-missing = true
 
 [output.html]
+default-theme = "rust"
 git-repository-url = "https://github.com/Atliac/wgc"
 edit-url-template = "https://github.com/Atliac/wgc/edit/main/docs/{path}"

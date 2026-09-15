@@ -3,7 +3,6 @@ name: CI & Deploy
 on:
   push:
     branches:
-      - main
       - master
   pull_request:
 
@@ -18,9 +17,6 @@ jobs:
   test:
     name: Run mdbook test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
       - uses: actions/checkout@v7
 
@@ -45,9 +41,6 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     needs: test # This ensures Deploy ONLY runs if Test passes!
     # This ensures Deploy ONLY runs on the main branch, not on PRs
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
