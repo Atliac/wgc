@@ -52,9 +52,6 @@ windows = { version = "0.62.2", features = [
 ] }
 tracing = { version = "0.1.44"}
 
-[[example]]
-name = "tutorial"
-
 [dev-dependencies]
 anyhow = "1.0.102"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

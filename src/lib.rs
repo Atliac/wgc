@@ -5,7 +5,6 @@
 //!
 //! **Repository:** [GitHub](https://github.com/Atliac/wgc)
 //!
-//! **Getting Started:** [Tutorial](https://github.com/Atliac/wgc/blob/master/examples/tutorial.rs)
 
 pub mod settings;
 pub use settings::*;

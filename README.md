@@ -61,7 +61,6 @@ Check out the [examples](./examples/) directory for more detailed usage examples
 
 - [save_image](./examples/save_image.rs): Captures a screen item and saves it as an image file to disk.
 - [show_image](./examples/show_image.rs): Captures a screen item and displays it in a window.
-- [tutorial](./examples/tutorial.rs): Provides a comprehensive tutorial on wgc for those who wish to leverage most of its features.
 
 ## License
 
