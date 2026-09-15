@@ -8,6 +8,7 @@
 [![Rust CI](https://github.com/Atliac/wgc/actions/workflows/ci.yml/badge.svg)](https://github.com/Atliac/wgc/actions/workflows/ci.yml)
 [![Stability: Stable](https://img.shields.io/badge/stability-stable-brightgreen)](https://github.com/atliac/wgc)
 [![Maintenance: Active](https://img.shields.io/badge/maintenance-active-blue)](https://github.com/atliac/wgc)
+[![Doc: DeepWiki](https://img.shields.io/badge/Doc-DeepWiki-blue)](https://deepwiki.com/Atliac/wgc)
 
 A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling screen/window capture on Windows 10/11.
 
