@@ -6,12 +6,12 @@
 //!
 //! # Running this example
 //! ```
-//! cargo run --example tutorial --features tracing
+//! cargo run --example tutorial
 //! ```
 //! Set the `RUST_LOG` environment variable to control log verbosity:
 //! ```
 //! set RUST_LOG=trace
-//! cargo run --example tutorial --features tracing
+//! cargo run --example tutorial
 //! ```
 
 use windows::Win32::{

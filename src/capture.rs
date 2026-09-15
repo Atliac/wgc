@@ -1,3 +1,4 @@
+use tracing::{debug, trace};
 use windows::{
     Foundation::TypedEventHandler,
     Graphics::{

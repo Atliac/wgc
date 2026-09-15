@@ -50,21 +50,16 @@ windows = { version = "0.62.2", features = [
     "System_Threading",
     "Win32_System_Performance",
 ] }
-tracing = { version = "0.1.44", optional = true }
+tracing = { version = "0.1.44"}
 
 [[example]]
 name = "tutorial"
-required-features = ["tracing"]
 
 [dev-dependencies]
 anyhow = "1.0.102"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 image = "0.25.10"
 show-image = "0.14.1"
-
-[features]
-default = []
-tracing = ["dep:tracing"]
 
 [package.metadata.docs.rs]
 all-features = true
