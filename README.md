@@ -8,6 +8,7 @@
 [![Rust CI](https://github.com/Atliac/wgc/actions/workflows/ci.yml/badge.svg)](https://github.com/Atliac/wgc/actions/workflows/ci.yml)
 [![Stability: Stable](https://img.shields.io/badge/stability-stable-brightgreen)](https://github.com/atliac/wgc)
 [![Maintenance: Active](https://img.shields.io/badge/maintenance-active-blue)](https://github.com/atliac/wgc)
+[![Doc: DeepWiki](https://img.shields.io/badge/Doc-DeepWiki-blue)](https://deepwiki.com/Atliac/wgc)
 
 A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling screen/window capture on Windows 10/11.
 
@@ -20,7 +21,7 @@ A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling s
 - Configurable pixel formats (currently `RGBA8` and `BGRA8`, with more formats planned) via `WgcSettings`
 - Automatic buffer recreation when capture resolution changes
 - Frame size normalization with letterboxing for consistent output dimensions
-- Optional `tracing` feature for debug logging
+- Built-in `tracing` debug logging, controlled at runtime with the `RUST_LOG` environment variable
 - Zero-copy frame access with efficient DirectX/Direct2D integration
 
 ## Requirements
@@ -49,7 +50,7 @@ fn main() -> anyhow::Result<()> {
                  item.clone().DisplayName()?,
                  frame.size()?);
 
-        let buffer: Vec<u8> = frame.read_pixels(None)?;
+        let buffer: Vec<u8> = frame.pixels()?;
     }
     Ok(())
 }
@@ -59,9 +60,14 @@ fn main() -> anyhow::Result<()> {
 
 Check out the [examples](./examples/) directory for more detailed usage examples:
 
-- [save_image](./examples/save_image.rs): Captures a screen item and saves it as an image file to disk.
 - [show_image](./examples/show_image.rs): Captures a screen item and displays it in a window.
-- [tutorial](./examples/tutorial.rs): Provides a comprehensive tutorial on wgc for those who wish to leverage most of its features.
+- [save_image](./examples/save_image.rs): Captures a screen item and saves it as an image file to disk.
+
+## Documentation
+
+- [Migration guide](./MIGRATION.md): how to upgrade from `wgc` 1.x to 2.0.
+- [DeepWiki](https://deepwiki.com/Atliac/wgc): narrative documentation and architecture overview.
+- [docs.rs](https://docs.rs/wgc): API reference.
 
 ## License
 

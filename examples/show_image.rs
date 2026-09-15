@@ -3,7 +3,7 @@ use wgc::*;
 
 #[show_image::main]
 fn main() -> anyhow::Result<()> {
-    // run with `cargo run --example show_image --features tracing` to see debug output,
+    // run with `cargo run --example show_image` to see debug output,
     // set `RUST_LOG=wgc=trace` environment variable to see verbose output
     use tracing_subscriber::EnvFilter;
     let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("wgc=debug"));
@@ -12,13 +12,7 @@ fn main() -> anyhow::Result<()> {
     // pick an item to capture
     let item = new_item_with_picker(None)?;
 
-    // set up wgc
-    let settings = WgcSettings {
-        frame_queue_length: 1,
-        ..Default::default()
-    };
-
-    let wgc = Wgc::new(item.clone(), settings)?;
+    let wgc = Wgc::new(item.clone(), Default::default())?;
 
     let title = item
         .clone()
@@ -29,7 +23,7 @@ fn main() -> anyhow::Result<()> {
     for frame in wgc {
         let frame = frame?;
         let frame_size = frame.size()?;
-        let buffer = frame.read_pixels(None)?;
+        let buffer = frame.pixels()?;
 
         // use show_image crate to display the image
         // When closing the window, an "Error: invalid window ID: WindowId(...)" may appear.

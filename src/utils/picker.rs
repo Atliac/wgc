@@ -1,4 +1,5 @@
 use crate::*;
+use tracing::{debug, instrument};
 use windows::{
     Graphics::Capture::*,
     Win32::{
@@ -10,7 +11,7 @@ use windows::{
 };
 use windows_future::AsyncStatus;
 
-#[cfg_attr(feature = "tracing", tracing::instrument(level = "debug", skip_all))]
+#[instrument(level = "debug", skip_all)]
 /// Presents a picker UI to allow the user to select a window or monitor for graphics capture.
 ///
 /// This function creates a `GraphicsCapturePicker` and displays the Windows built-in picker UI,

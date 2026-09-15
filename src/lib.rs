@@ -5,27 +5,6 @@
 //!
 //! **Repository:** [GitHub](https://github.com/Atliac/wgc)
 //!
-//! **Getting Started:** [Tutorial](https://github.com/Atliac/wgc/blob/master/examples/tutorial.rs)
-
-// A macro that does nothing.
-#[cfg(not(feature = "tracing"))]
-macro_rules! noop_macro {
-    ($($arg:tt)*) => {};
-}
-
-// A macro that conditionally uses tracing or noop_macro.
-macro_rules! use_tracing_macros {
-    ($($tracing_macro:ident),+) => {
-        $(
-#[cfg(feature = "tracing")]
-pub(crate) use tracing::$tracing_macro;
-
-#[cfg(not(feature = "tracing"))]
-pub(crate) use noop_macro as $tracing_macro;
-        )+
-    };
-}
-use_tracing_macros!(debug, trace);
 
 pub mod settings;
 pub use settings::*;

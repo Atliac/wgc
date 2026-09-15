@@ -1,3 +1,4 @@
+use tracing::{debug, trace};
 use windows::{
     Foundation::TypedEventHandler,
     Graphics::{
@@ -46,10 +47,8 @@ use crate::*;
 /// let item = wgc::new_item_from_hwnd(hwnd)?;
 ///
 /// // 2. Configure capture settings
-/// let settings = WgcSettings {
-///     frame_queue_length: 3,
-///     ..Default::default()
-/// };
+/// let mut settings = WgcSettings::default();
+/// settings.frame_queue_length = 3;
 ///
 /// // 3. Initialize the capture session
 /// let wgc = Wgc::new(item, settings)?;
