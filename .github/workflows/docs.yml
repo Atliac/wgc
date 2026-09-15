@@ -3,7 +3,7 @@ name: CI & Deploy
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
