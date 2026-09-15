@@ -36,7 +36,7 @@ jobs:
   # Create a PR with the new versions and changelog, preparing the next release.
   release-plz-pr:
     name: Release-plz PR
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     if: github.repository == 'Atliac/wgc'
     permissions:
       contents: write
