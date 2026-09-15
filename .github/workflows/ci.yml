@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v2
         with:
           components: rustfmt
 
@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v2
         with:
           components: clippy
 
@@ -75,7 +75,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v2
 
       - name: Run all workspace tests
         run: cargo test --workspace --all-features
@@ -96,7 +96,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v2
 
       - name: Build documentation (warnings as errors)
         run: cargo doc --no-deps --workspace --all-features
