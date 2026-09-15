@@ -27,12 +27,9 @@ use windows::{Graphics::DirectX::DirectXPixelFormat, Win32::Graphics::Dxgi::Comm
 /// use wgc::settings::{WgcSettings, PixelFormat};
 /// use std::time::Duration;
 ///
-/// // Always safe to set non-optional fields
-/// let settings = WgcSettings {
-///     pixel_format: PixelFormat::RGBA8,
-///     frame_queue_length: 2,
-///     ..Default::default()
-/// };
+/// let mut settings = WgcSettings::default();
+/// settings.pixel_format = PixelFormat::RGBA8;
+/// settings.frame_queue_length = 2;
 /// ```
 #[derive(smart_default::SmartDefault, Debug, Clone, Copy)]
 #[non_exhaustive]
