@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1](https://github.com/Atliac/wgc/compare/v2.0.0...v2.0.1) - 2026-09-15
+
+### Other
+
+- Add beginner mdBook tutorial and GitHub Pages deployment workflow ([#54](https://github.com/Atliac/wgc/pull/54))
+
 ## [2.0.0](https://github.com/Atliac/wgc/compare/v1.0.7...v2.0.0) - 2026-09-15
 
 ### Other
