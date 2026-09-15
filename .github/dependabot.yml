@@ -1,10 +1,73 @@
 version: 2
+
 updates:
+  # ==============================================================================
+  # GitHub Actions Updates
+  # Keeps your CI/CD workflows up to date.
+  # ==============================================================================
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly" # Options: "daily", "weekly", "monthly"
+
+    # --- Optional Settings ---
+    open-pull-requests-limit: 3
+    labels:
+      - "ci"
+      - "dependencies"
+    groups:
+      actions:
+        patterns:
+          - "*"
+
+  # ==============================================================================
+  # Cargo (Rust) Updates
+  # Pointing to the root "/" manages the entire workspace via the root Cargo.lock.
+  # ==============================================================================
   - package-ecosystem: "cargo"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly" # Options: "daily", "weekly", "monthly"
+
+    # --- Optional Settings ---
+
+    # Limit the number of open cargo-related pull requests at any given time (default is 5)
+    # open-pull-requests-limit: 5
+
+    # Automatically apply labels, assignees, or reviewers to generated PRs
+    labels:
+      - "dependencies"
+      - "rust"
+    # assignees:
+    #   - "your-github-username"
+    # reviewers:
+    #   - "reviewer-github-username"
+
+    # Enforce formatting rules (like Conventional Commits) on Dependabot's commits
+    commit-message:
+      prefix: "chore"
+      include: "scope" # Generates "chore(deps): bump serde..."
+
+    # Group updates together to reduce PR noise and save CI minutes
+    groups:
+      # Specific ecosystem rules are listed first so they are processed first (Group specific high-frequency ecosystems)
+      tokio-ecosystem:
+        patterns:
+          - "tokio*"
+          - "axum*"
+
+      # General rules are listed last to catch everything else
+      cargo-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+    # Ignore specific versions or restrict upgrades
+    # ignore:
+    #   # Example: Ignore major version bumps for tokio to avoid unexpected breaking changes
+    #   - dependency-name: "tokio"
+    #     update-types: ["version-update:semver-major"]
+    #   # Example: Entirely ignore updates for a specific crate
+    #   - dependency-name: "some-unstable-dependency"

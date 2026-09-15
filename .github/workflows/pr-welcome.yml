@@ -1,0 +1,19 @@
+name: PR Welcome
+
+on:
+  pull_request_target:
+    types: [opened]
+
+# Required permissions for reading and writing PR comments
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  pr-welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR Welcome
+        uses: Atliac/pr-welcome@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
