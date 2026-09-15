@@ -14,6 +14,7 @@
 //! cargo run --example tutorial
 //! ```
 
+use wgc::WgcSettings;
 use windows::Win32::{
     Graphics::Gdi::MonitorFromWindow, UI::WindowsAndMessaging::GetForegroundWindow,
 };
@@ -62,11 +63,8 @@ fn main() -> anyhow::Result<()> {
     // - `frame_queue_length`: Number of frames to buffer. Higher values provide
     //   more buffering but increase latency.
     //
-    let settings = wgc::WgcSettings {
-        // pixel_format: wgc::PixelFormat::BGRA8, // Uncomment to set a specific format
-        frame_queue_length: 3,
-        ..Default::default() // Use default values for all other settings
-    };
+    let mut settings = WgcSettings::default();
+    settings.frame_queue_length = 3;
 
     // Print the current settings configuration for reference.
     println!("{:?}", settings);

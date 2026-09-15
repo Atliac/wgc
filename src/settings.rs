@@ -35,6 +35,7 @@ use windows::{Graphics::DirectX::DirectXPixelFormat, Win32::Graphics::Dxgi::Comm
 /// };
 /// ```
 #[derive(smart_default::SmartDefault, Debug, Clone, Copy)]
+#[non_exhaustive]
 pub struct WgcSettings {
     /// The pixel format for capture output.
     ///

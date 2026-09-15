@@ -12,13 +12,7 @@ fn main() -> anyhow::Result<()> {
     // pick an item to capture
     let item = new_item_with_picker(None)?;
 
-    // set up wgc
-    let settings = WgcSettings {
-        frame_queue_length: 1,
-        ..Default::default()
-    };
-
-    let wgc = Wgc::new(item.clone(), settings)?;
+    let wgc = Wgc::new(item.clone(), Default::default())?;
 
     let title = item
         .clone()
