@@ -60,8 +60,8 @@ fn main() -> anyhow::Result<()> {
 
 Check out the [examples](./examples/) directory for more detailed usage examples:
 
-- [save_image](./examples/save_image.rs): Captures a screen item and saves it as an image file to disk.
 - [show_image](./examples/show_image.rs): Captures a screen item and displays it in a window.
+- [save_image](./examples/save_image.rs): Captures a screen item and saves it as an image file to disk.
 
 ## Documentation
 
