@@ -23,7 +23,7 @@ fn main() -> anyhow::Result<()> {
     for frame in wgc {
         let frame = frame?;
         let frame_size = frame.size()?;
-        let buffer = frame.read_pixels(None)?;
+        let buffer = frame.pixels()?;
 
         // use show_image crate to display the image
         // When closing the window, an "Error: invalid window ID: WindowId(...)" may appear.

@@ -51,30 +51,34 @@ impl Frame {
         Ok(size.into())
     }
 
-    /// Reads the pixel data from the capture frame and returns it as a byte vector.
-    ///
-    /// If a `desired_size` is provided and differs from the frame's native size,
-    /// the image will be scaled to fit within the desired dimensions while maintaining
-    /// aspect ratio. The scaled image will be letterboxed (centered with gray borders)
-    /// to fill the desired size.
-    ///
-    /// If `desired_size` is `None`, the frame's native size will be used.
-    ///
-    /// # Arguments
-    ///
-    /// * `desired_size` - Optional target size for the output image. If specified, the frame will be scaled to fit within these dimensions.
+    /// Returns the raw pixel data of the capture frame at its native size.
     ///
     /// # Returns
     ///
     /// A `Vec<u8>` containing the raw pixel data in the frame's pixel format.
     /// The buffer size is `width * height * bytes_per_pixel`.
     ///
-    pub fn read_pixels(
-        &self,
-        desired_size: Option<FrameSize>,
-    ) -> std::result::Result<Vec<u8>, WgcError> {
+    pub fn pixels(&self) -> std::result::Result<Vec<u8>, WgcError> {
+        self.pixels_fitted(self.size()?)
+    }
+
+    /// Returns the raw pixel data of the capture frame, fitted into `desired_size`.
+    ///
+    /// If `desired_size` differs from the frame's native size, the image will be scaled
+    /// to fit within the desired dimensions while maintaining aspect ratio. The scaled
+    /// image will be letterboxed (centered with gray borders) to fill the desired size.
+    ///
+    /// # Arguments
+    ///
+    /// * `desired_size` - Target size for the output image. The frame will be scaled to fit within these dimensions.
+    ///
+    /// # Returns
+    ///
+    /// A `Vec<u8>` containing the raw pixel data in the frame's pixel format.
+    /// The buffer size is `width * height * bytes_per_pixel`.
+    ///
+    pub fn pixels_fitted(&self, desired_size: FrameSize) -> std::result::Result<Vec<u8>, WgcError> {
         let frame_size = self.size()?;
-        let desired_size = desired_size.unwrap_or(frame_size);
         let mut buffer = vec![
             0;
             (desired_size.width * desired_size.height * self.pixel_format.bytes_per_pixel())

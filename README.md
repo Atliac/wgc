@@ -49,7 +49,7 @@ fn main() -> anyhow::Result<()> {
                  item.clone().DisplayName()?,
                  frame.size()?);
 
-        let buffer: Vec<u8> = frame.read_pixels(None)?;
+        let buffer: Vec<u8> = frame.pixels()?;
     }
     Ok(())
 }
