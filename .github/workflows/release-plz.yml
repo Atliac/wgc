@@ -3,6 +3,9 @@ name: Release-plz
 on:
   push:
     branches: ["master"]
+    paths-ignore:
+      - 'docs/**'
+      - '.github/**'
 
 jobs:
   # Release unpublished packages.
