@@ -7,6 +7,11 @@ on:
       - 'docs/**'
       - '.github/**'
       - 'Cargo.lock'
+      - '*.md'
+      - 'book.toml'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'LICENSE*'
 
 jobs:
   # Release unpublished packages.
