@@ -1,13 +1,11 @@
-
-
 # wgc - Windows Graphics Capture Wrapper
 
 [![Crates.io](https://img.shields.io/crates/v/wgc)](https://crates.io/crates/wgc)
 [![Documentation](https://docs.rs/wgc/badge.svg)](https://docs.rs/wgc)
-[![License](https://img.shields.io/crates/l/wgc)](https://github.com/atliac/wgc/blob/master/LICENSE)
+[![License](https://img.shields.io/crates/l/wgc)](https://github.com/Atliac/wgc/blob/master/LICENSE)
 [![Rust CI](https://github.com/Atliac/wgc/actions/workflows/ci.yml/badge.svg)](https://github.com/Atliac/wgc/actions/workflows/ci.yml)
-[![Stability: Stable](https://img.shields.io/badge/stability-stable-brightgreen)](https://github.com/atliac/wgc)
-[![Maintenance: Active](https://img.shields.io/badge/maintenance-active-blue)](https://github.com/atliac/wgc)
+[![Stability: Stable](https://img.shields.io/badge/stability-stable-brightgreen)](https://github.com/Atliac/wgc)
+[![Maintenance: Active](https://img.shields.io/badge/maintenance-active-blue)](https://github.com/Atliac/wgc)
 [![Docs: Tutorial](https://img.shields.io/badge/Docs-Tutorial-blue)](https://books.atliac.com/wgc)
 
 A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling screen/window capture on Windows 10/11.
