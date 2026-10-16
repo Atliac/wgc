@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.2](https://github.com/Atliac/wgc/compare/v2.0.1...v2.0.2) - 2026-10-16
+
+### Other
+
+- bold first feature prefix in README ([#68](https://github.com/Atliac/wgc/pull/68))
+- clean up header spacing and standardize badge repository URLs ([#66](https://github.com/Atliac/wgc/pull/66))
+- ignore Cargo.lock in release-plz workflow ([#63](https://github.com/Atliac/wgc/pull/63))
+- *(deps)* bump thiserror from 2.0.20 to 2.0.21 in the cargo-minor-patch group ([#61](https://github.com/Atliac/wgc/pull/61))
+- *(ci)* skip release-plz for docs-only pushes ([#60](https://github.com/Atliac/wgc/pull/60))
+- *(ci)* disable docs PR trigger and mdbook test job ([#58](https://github.com/Atliac/wgc/pull/58))
+- *(ci)* add PR welcome and refine Dependabot ([#56](https://github.com/Atliac/wgc/pull/56))
+
 ## [2.0.1](https://github.com/Atliac/wgc/compare/v2.0.0...v2.0.1) - 2026-09-15
 
 ### Other
