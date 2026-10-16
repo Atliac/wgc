@@ -13,7 +13,7 @@ A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling s
 **Realtime & AI-optimized** capture for ML and computer vision workflows.
 
 ## Features
-- Realtime & AI-optimized: Capture any window or monitor at any resolution and resize in real-time using letterbox scaling. Ideal for ML pipelines, streaming, and computer vision applications.
+- **Realtime & AI-optimized**: Capture any window or monitor at any resolution and resize in real-time using letterbox scaling. Ideal for ML pipelines, streaming, and computer vision applications.
 - Ergonomic iterator-based API for capturing frames via the `Wgc` struct
 - Interactive picker dialog for selecting windows or monitors to capture
 - Configurable pixel formats (currently `RGBA8` and `BGRA8`, with more formats planned) via `WgcSettings`
