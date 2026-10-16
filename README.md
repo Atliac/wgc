@@ -1,5 +1,3 @@
-
-
 # wgc - Windows Graphics Capture Wrapper
 
 [![Crates.io](https://img.shields.io/crates/v/wgc)](https://crates.io/crates/wgc)
