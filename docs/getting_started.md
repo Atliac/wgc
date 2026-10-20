@@ -1,61 +1,39 @@
 # Getting Started
 
-This chapter covers adding `wgc` to your Rust project and writing a basic screen capture script.
-
-## Adding `wgc` to `Cargo.toml`
-
-Add `wgc` to your `Cargo.toml` dependencies:
+Add `wgc` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
 wgc = "2.0"
 ```
 
-If you plan to process or save captured images, you might also want helper crates like `image` or `anyhow`:
+## Minimal Example
 
-```toml
-[dependencies]
-wgc = "2.0"
-anyhow = "1.0"
-image = "0.25"
-```
-
-## Basic Usage Example
-
-Below is a complete minimal example showing how to open the system picker dialog, capture a single frame, and inspect its dimensions and raw pixel data.
+Prompt the user to pick a target and capture a frame:
 
 ```rust,ignore
-use wgc::{new_item_with_picker, Wgc};
+use wgc::*;
 
 fn main() -> anyhow::Result<()> {
-    // 1. Prompt the user to select a window or monitor to capture
+    // 1. Prompt user to select a window or monitor
     let item = new_item_with_picker(None)?;
 
-    // 2. Create a Wgc capture session with default settings
+    // 2. Start a capture session with default settings
     let wgc = Wgc::new(item.clone(), Default::default())?;
 
-    // 3. Iterate over captured frames (taking 1 frame here)
+    // 3. Wgc implements Iterator over Result<Frame, WgcError>
     for frame in wgc.take(1) {
         let frame = frame?;
         let size = frame.size()?;
-        println!(
-            "Captured frame from '{}' with size {}x{}",
-            item.DisplayName()?,
-            size.width,
-            size.height
-        );
+        println!("Captured frame: {}x{}", size.width, size.height);
 
-        // Access raw RGBA pixel buffer
+        // Access raw RGBA pixel buffer (width * height * 4 bytes)
         let pixels: Vec<u8> = frame.pixels()?;
-        println!("Buffer size in bytes: {}", pixels.len());
+        println!("Buffer length: {} bytes", pixels.len());
     }
 
     Ok(())
 }
 ```
 
-## How It Works
-
-1. `new_item_with_picker(None)` opens the Windows system picker dialog allowing the user to pick any window or display.
-2. `Wgc::new(item, settings)` initializes the Direct3D device, capture session, and frame pool.
-3. `Wgc` implements `Iterator<Item = Result<Frame, WgcError>>`, yielding available frames sequentially.
+For more in-depth examples with image saving and GUI display, see the [Examples chapter](examples.md) or clone the repository to run them directly.

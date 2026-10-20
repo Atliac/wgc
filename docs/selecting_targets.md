@@ -1,58 +1,36 @@
 # Selecting Capture Targets
 
-`wgc` provides multiple ways to select a target (`GraphicsCaptureItem`) for screen or window capture.
+`wgc` provides three ways to select a target (`GraphicsCaptureItem`):
 
-## 1. Using the Interactive Picker
+## 1. Interactive Picker UI
 
-The interactive picker displays a native Windows UI dialog that lets the user select any open window or monitor screen.
+Opens the native Windows picker dialog. Pass `None` or an optional parent window `HWND`:
 
 ```rust,ignore
 use wgc::new_item_with_picker;
 
-fn main() -> anyhow::Result<()> {
-    // Pass None for parent window handle, or Some(parent_hwnd) to center the picker over a specific window
-    let item = new_item_with_picker(None)?;
-    println!("Selected target: {}", item.DisplayName()?);
-    Ok(())
-}
+let item = new_item_with_picker(None)?;
+println!("Selected target: {}", item.DisplayName()?);
 ```
 
-## 2. Target by Window Handle (`HWND`)
+## 2. Window Handle (`HWND`)
 
-If you know the window handle (`HWND`) of a specific application window, you can target it directly without showing a UI picker:
+Target a specific window directly without opening a picker dialog:
 
 ```rust,ignore
-use wgc::new_item_for_window;
+use wgc::new_item_from_hwnd;
 use windows::Win32::Foundation::HWND;
 
-fn capture_window(hwnd: HWND) -> anyhow::Result<()> {
-    let item = new_item_for_window(hwnd)?;
-    println!("Capturing window: {}", item.DisplayName()?);
-    Ok(())
-}
+let item = new_item_from_hwnd(hwnd)?;
 ```
 
-## 3. Target by Monitor Handle (`HMONITOR`)
+## 3. Monitor Handle (`HMONITOR`)
 
-Similarly, you can capture an entire monitor display directly by passing its `HMONITOR` handle:
+Target a specific display monitor directly:
 
 ```rust,ignore
-use wgc::new_item_for_monitor;
+use wgc::new_item_from_monitor;
 use windows::Win32::Graphics::Gdi::HMONITOR;
 
-fn capture_monitor(hmonitor: HMONITOR) -> anyhow::Result<()> {
-    let item = new_item_for_monitor(hmonitor)?;
-    println!("Capturing monitor: {}", item.DisplayName()?);
-    Ok(())
-}
-```
-
-## Target Properties
-
-The returned `GraphicsCaptureItem` is a WinRT object. You can query its properties such as display name or size:
-
-```rust,ignore
-let name = item.DisplayName()?;
-let size = item.Size()?;
-println!("Target name: {}, size: {}x{}", name, size.Width, size.Height);
+let item = new_item_from_monitor(hmonitor)?;
 ```
