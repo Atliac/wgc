@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.3](https://github.com/Atliac/wgc/compare/v2.0.2...v2.0.3) - 2026-10-20
+
+### Fixed
+
+- expand Direct3D feature level support and add WARP fallback ([#74](https://github.com/Atliac/wgc/pull/74))
+
 ## [2.0.2](https://github.com/Atliac/wgc/compare/v2.0.1...v2.0.2) - 2026-10-20
 
 ### Other
