@@ -17,7 +17,11 @@ use windows::{
                 D2D1_DEVICE_CONTEXT_OPTIONS_NONE, D2D1_FACTORY_TYPE_SINGLE_THREADED,
                 D2D1CreateFactory, ID2D1Device, ID2D1DeviceContext, ID2D1Factory1,
             },
-            Direct3D::{D3D_DRIVER_TYPE_HARDWARE, D3D_FEATURE_LEVEL_11_1},
+            Direct3D::{
+                D3D_DRIVER_TYPE_HARDWARE, D3D_DRIVER_TYPE_WARP, D3D_FEATURE_LEVEL,
+                D3D_FEATURE_LEVEL_10_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_11_0,
+                D3D_FEATURE_LEVEL_11_1,
+            },
             Direct3D11::*,
             Dxgi::IDXGIDevice,
         },
@@ -220,20 +224,44 @@ impl Iterator for Wgc {
 }
 
 fn create_d3d_device() -> std::result::Result<ID3D11Device, WgcError> {
+    const FEATURE_LEVELS: [D3D_FEATURE_LEVEL; 4] = [
+        D3D_FEATURE_LEVEL_11_1,
+        D3D_FEATURE_LEVEL_11_0,
+        D3D_FEATURE_LEVEL_10_1,
+        D3D_FEATURE_LEVEL_10_0,
+    ];
+
     let mut d3d_device = None;
-    unsafe {
+    let res = unsafe {
         D3D11CreateDevice(
             None,
             D3D_DRIVER_TYPE_HARDWARE,
             HMODULE::default(),
             D3D11_CREATE_DEVICE_BGRA_SUPPORT,
-            Some(&[D3D_FEATURE_LEVEL_11_1]),
+            Some(&FEATURE_LEVELS),
             D3D11_SDK_VERSION,
             Some(&mut d3d_device),
             None,
             None,
-        )?;
+        )
+    };
+
+    if res.is_err() {
+        unsafe {
+            D3D11CreateDevice(
+                None,
+                D3D_DRIVER_TYPE_WARP,
+                HMODULE::default(),
+                D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+                Some(&FEATURE_LEVELS),
+                D3D11_SDK_VERSION,
+                Some(&mut d3d_device),
+                None,
+                None,
+            )?;
+        }
     }
+
     Ok(d3d_device.unwrap())
 }
 
