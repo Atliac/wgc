@@ -4,11 +4,9 @@ on:
   push:
     branches: ["master"]
     paths-ignore:
-      - 'docs/**'
       - '.github/**'
       - 'Cargo.lock'
       - '*.md'
-      - 'book.toml'
       - '.gitignore'
       - '.gitattributes'
       - 'LICENSE*'

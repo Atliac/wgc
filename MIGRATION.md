@@ -13,7 +13,7 @@ This document describes breaking API changes and how to update downstream code.
 | 1 | `Frame::read_pixels(Option<FrameSize>)` split into `Frame::pixels()` and `Frame::pixels_fitted(FrameSize)` | Rename calls (see [below](#1-frameread_pixels--framepixels--framepixels_fitted)) |
 | 2 | `WgcSettings` is now `#[non_exhaustive]` | Build it from `WgcSettings::default()` and assign fields (see [below](#2-wgcsettings-is-now-non_exhaustive)) |
 | 3 | The `tracing` Cargo feature was removed; `tracing` is a required dependency | Drop `--features tracing` and `features = ["tracing"]` |
-| 4 | The `tutorial` example was removed | Use the [examples](./examples/) and [tutorial docs](https://books.atliac.com/wgc) |
+| 4 | The `tutorial` example was removed | Use the [examples](./examples/) |
 
 ### 1. `Frame::read_pixels` → `Frame::pixels` / `Frame::pixels_fitted`
 
@@ -177,8 +177,6 @@ RUST_LOG=wgc=debug cargo run --example save_image
 - Read the [save_image](./examples/save_image.rs) example, which now demonstrates both
   `pixels()` (native size) and `pixels_fitted()` (letterboxed scaling).
 - Read the [show_image](./examples/show_image.rs) example for a continuous capture loop.
-- Consult the [tutorial documentation](https://books.atliac.com/wgc) for a
-  narrative walkthrough of the crate.
 
 
 ### Verification checklist

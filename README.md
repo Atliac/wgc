@@ -6,7 +6,6 @@
 [![Rust CI](https://github.com/Atliac/wgc/actions/workflows/ci.yml/badge.svg)](https://github.com/Atliac/wgc/actions/workflows/ci.yml)
 [![Stability: Stable](https://img.shields.io/badge/stability-stable-brightgreen)](https://github.com/Atliac/wgc)
 [![Maintenance: Active](https://img.shields.io/badge/maintenance-active-blue)](https://github.com/Atliac/wgc)
-[![Docs: Tutorial](https://img.shields.io/badge/Docs-Tutorial-blue)](https://books.atliac.com/wgc)
 
 A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling screen/window capture on Windows 10/11.
 
@@ -83,7 +82,6 @@ cd wgc
 
 ## Documentation
 
-- [Tutorial](https://books.atliac.com/wgc): narrative documentation and architecture overview.
 - [Migration guide](./MIGRATION.md): how to upgrade from `wgc` 1.x to 2.0.
 - [docs.rs](https://docs.rs/wgc): API reference.
 
