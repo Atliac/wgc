@@ -23,22 +23,19 @@ fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    // Pick a window or monitor to capture
-    let item = new_item_with_picker(None)?;
-
-    let mut settings = WgcSettings::default();
-    // Enable ReportAndRender mode: DWM only renders changed/dirty areas
-    settings.dirty_region_mode = Some(true);
+    let mut builder = Wgc::new_from_picker(None)?
+        // Enable ReportAndRender mode: DWM only renders changed/dirty areas
+        .dirty_region_mode(true);
 
     // Disable cursor capture if supported so mouse movements don't continuously
     // trigger dirty regions, allowing you to focus on actual window content changes.
     if capabilities::is_cursor_configurable()? {
-        settings.capture_cursor = Some(false);
+        builder = builder.capture_cursor(false);
     }
 
-    let wgc = Wgc::new(item.clone(), settings)?;
+    let wgc = builder.build()?;
 
-    let title = item.DisplayName().unwrap_or_default().to_string_lossy();
+    let title = wgc.item().DisplayName().unwrap_or_default().to_string_lossy();
     let window =
         show_image::create_window(format!("{title} - Only Dirty Regions"), Default::default())?;
 

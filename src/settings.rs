@@ -1,39 +1,9 @@
 use std::time::Duration;
 use windows::{Graphics::DirectX::DirectXPixelFormat, Win32::Graphics::Dxgi::Common::DXGI_FORMAT};
 
-/// Configuration settings for Windows Graphics Capture (WGC).
-///
-/// This struct allows you to customize various aspects of the capture session.
-///
-/// # Capability Checks
-///
-/// Fields of type `Option<T>` can only be set to `Some(value)` if the corresponding
-/// capability check function in [`crate::capabilities`] returns `true`. Attempting to
-/// configure these options on unsupported Windows versions will result in an error.
-///
-/// ## Optional Fields and Their Capability Functions
-///
-/// | Field | Capability Function |
-/// |-------|---------------------|
-/// | [`capture_cursor`](#structfield.capture_cursor) | [`is_cursor_configurable()`](crate::capabilities::is_cursor_configurable) |
-/// | [`display_border`](#structfield.display_border) | [`is_border_configurable()`](crate::capabilities::is_border_configurable) |
-/// | [`include_secondary_windows`](#structfield.include_secondary_windows) | [`is_include_secondary_windows_configurable()`](crate::capabilities::is_include_secondary_windows_configurable) |
-/// | [`dirty_region_mode`](#structfield.dirty_region_mode) | [`is_dirty_region_mode_configurable()`](crate::capabilities::is_dirty_region_mode_configurable) |
-/// | [`min_update_interval`](#structfield.min_update_interval) | [`is_min_update_interval_configurable()`](crate::capabilities::is_min_update_interval_configurable) |
-///
-/// # Example
-///
-/// ```
-/// use wgc::settings::{WgcSettings, PixelFormat};
-/// use std::time::Duration;
-///
-/// let mut settings = WgcSettings::default();
-/// settings.pixel_format = PixelFormat::RGBA8;
-/// settings.frame_queue_length = 2;
-/// ```
+/// Internal configuration settings for Windows Graphics Capture (WGC).
 #[derive(smart_default::SmartDefault, Debug, Clone, Copy)]
-#[non_exhaustive]
-pub struct WgcSettings {
+pub(crate) struct WgcSettings {
     /// The pixel format for capture output.
     ///
     /// Defaults to [`PixelFormat::RGBA8`].

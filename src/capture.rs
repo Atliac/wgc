@@ -11,7 +11,7 @@ use windows::{
     },
     System::DispatcherQueueController,
     Win32::{
-        Foundation::{GetLastError, HMODULE},
+        Foundation::{GetLastError, HMODULE, HWND},
         Graphics::{
             Direct2D::{
                 D2D1_DEVICE_CONTEXT_OPTIONS_NONE, D2D1_FACTORY_TYPE_SINGLE_THREADED,
@@ -24,6 +24,7 @@ use windows::{
             },
             Direct3D11::*,
             Dxgi::IDXGIDevice,
+            Gdi::HMONITOR,
         },
         System::WinRT::{
             CreateDispatcherQueueController, DQTAT_COM_NONE, DQTYPE_THREAD_CURRENT,
@@ -44,23 +45,25 @@ use crate::*;
 /// (window, monitor, or user-selected item). It implements [`Iterator`] to yield
 /// captured frames one by one.
 ///
+/// Capture sessions are created using the builder API via the `Wgc::new_from_*`
+/// constructors:
+/// - [`Wgc::new_from_item`]
+/// - [`Wgc::new_from_hwnd`]
+/// - [`Wgc::new_from_monitor`]
+/// - [`Wgc::new_from_picker`]
+///
 /// # Usage Example
-/// ```ignore
+/// ```no_run
 /// use wgc::*;
 ///
 /// # fn main() -> anyhow::Result<()> {
-/// // 1. Create a capture item (e.g., from a window handle or monitor)
-/// let hwnd = /* obtain window handle */;
-/// let item = wgc::new_item_from_hwnd(hwnd)?;
+/// // 1. Create and configure capture session using the builder API
+/// let wgc = Wgc::new_from_picker(None)?
+///     .frame_queue_length(3)
+///     .capture_cursor(false)
+///     .build()?;
 ///
-/// // 2. Configure capture settings
-/// let mut settings = WgcSettings::default();
-/// settings.frame_queue_length = 3;
-///
-/// // 3. Initialize the capture session
-/// let wgc = Wgc::new(item, settings)?;
-///
-/// // 4. Capture frames (Wgc implements Iterator)
+/// // 2. Capture frames (Wgc implements Iterator)
 /// for frame_result in wgc.take(10) {
 ///     let frame = frame_result?;
 ///     // Process the frame...
@@ -74,12 +77,12 @@ use crate::*;
 /// - The `Wgc` struct owns all capture resources and must be kept alive while capturing.
 /// - It implements [`Iterator`] with [`Frame`] as the item type (wrapped in `Result`).
 /// - The iterator will block until a frame is available or an error occurs.
-/// - Use [`WgcSettings`] to configure frame buffering, pixel format, and other options.
+/// - Use [`WgcBuilder`] to configure frame buffering, pixel format, and other options.
 ///
 pub struct Wgc {
     _session: GraphicsCaptureSession,
     _control: DispatcherQueueController,
-    _item: GraphicsCaptureItem,
+    item: GraphicsCaptureItem,
     frame_pool: Direct3D11CaptureFramePool,
     settings: WgcSettings,
     buffer_size: SizeInt32,
@@ -88,10 +91,80 @@ pub struct Wgc {
 }
 
 impl Wgc {
-    pub fn new(
-        item: GraphicsCaptureItem,
-        settings: WgcSettings,
-    ) -> std::result::Result<Self, WgcError> {
+    /// Creates a [`WgcBuilder`] from an existing [`GraphicsCaptureItem`].
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use wgc::*;
+    /// # fn example(item: windows::Graphics::Capture::GraphicsCaptureItem) -> Result<(), WgcError> {
+    /// let wgc = Wgc::new_from_item(item)
+    ///     .capture_cursor(false)
+    ///     .build()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn new_from_item(item: GraphicsCaptureItem) -> WgcBuilder {
+        WgcBuilder::new(item)
+    }
+
+    /// Creates a [`WgcBuilder`] targeting a window handle (`HWND`).
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use wgc::*;
+    /// # use windows::Win32::Foundation::HWND;
+    /// # fn example(hwnd: HWND) -> Result<(), WgcError> {
+    /// let wgc = Wgc::new_from_hwnd(hwnd)?
+    ///     .capture_cursor(true)
+    ///     .build()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn new_from_hwnd(hwnd: HWND) -> std::result::Result<WgcBuilder, WgcError> {
+        WgcBuilder::from_hwnd(hwnd)
+    }
+
+    /// Creates a [`WgcBuilder`] targeting a monitor handle (`HMONITOR`).
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use wgc::*;
+    /// # use windows::Win32::Graphics::Gdi::HMONITOR;
+    /// # fn example(monitor: HMONITOR) -> Result<(), WgcError> {
+    /// let wgc = Wgc::new_from_monitor(monitor)?
+    ///     .build()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn new_from_monitor(monitor: HMONITOR) -> std::result::Result<WgcBuilder, WgcError> {
+        WgcBuilder::from_monitor(monitor)
+    }
+
+    /// Presents a picker UI and creates a [`WgcBuilder`] for the selected item.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use wgc::*;
+    /// # fn example() -> Result<(), WgcError> {
+    /// let wgc = Wgc::new_from_picker(None)?
+    ///     .frame_queue_length(2)
+    ///     .build()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn new_from_picker(
+        owner_window: Option<HWND>,
+    ) -> std::result::Result<WgcBuilder, WgcError> {
+        WgcBuilder::from_picker(owner_window)
+    }
+
+    /// Returns a reference to the captured [`GraphicsCaptureItem`].
+    pub fn item(&self) -> &GraphicsCaptureItem {
+        &self.item
+    }
+
+    pub(crate) fn from_builder(builder: WgcBuilder) -> std::result::Result<Self, WgcError> {
+        let WgcBuilder { item, settings } = builder;
         let d3d_device = create_d3d_device()?;
         let dxgi_device: IDXGIDevice = d3d_device.cast()?;
         let direct3d_device: IDirect3DDevice =
@@ -155,7 +228,7 @@ impl Wgc {
         )?;
         session.StartCapture()?;
         Ok(Self {
-            _item: item,
+            item,
             _session: session,
             _control: control,
             frame_pool,

@@ -17,7 +17,7 @@ A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling s
 - **Target selection flexibility**: Interactively select targets via native Windows UI picker or directly target windows (`HWND`) and monitors (`HMONITOR`).
 - **Dirty region reporting**: Query changed sub-rectangles via `frame.dirty_regions()` to avoid re-processing static areas.
 - **Popup & menu capture**: Optionally capture dropdown menus, context menus, and child popups via `include_secondary_windows`.
-- **Configurable pixel formats**: Choose between `RGBA8` and `BGRA8` via `WgcSettings`.
+- **Fluent builder API**: Configure capture sessions seamlessly using `Wgc::new_from_*().<config>().build()?`.
 - **Automatic buffer recreation**: Automatically recreate internal frame pool buffers when target resolution changes.
 - **Frame size normalization**: Aspect-ratio preserving letterboxing for constant-dimension machine learning inputs.
 
@@ -34,18 +34,16 @@ Here's a basic example of how to capture frames:
 use wgc::*;
 
 fn main() -> anyhow::Result<()> {
-    // Pick an item to capture (window or monitor)
-    let item = new_item_with_picker(None)?;
-
-    // Create the capture instance with default settings
-    let wgc = Wgc::new(item.clone(), Default::default())?;
+    // Pick an item to capture and configure capture settings with builder
+    let wgc = Wgc::new_from_picker(None)?
+        .frame_queue_length(2)
+        .capture_cursor(false)
+        .build()?;
 
     // Iterate over captured frames
     for frame in wgc.take(1) {
         let frame = frame?;
-        println!("Captured frame from '{}' with size {:?}",
-                 item.DisplayName()?,
-                 frame.size()?);
+        println!("Captured frame with size {:?}", frame.size()?);
 
         let buffer: Vec<u8> = frame.pixels()?;
         println!("Buffer length: {} bytes", buffer.len());
