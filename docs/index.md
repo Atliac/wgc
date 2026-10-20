@@ -1,21 +1,32 @@
 # Introduction
 
-Welcome to the **`wgc`** tutorial!
+**`wgc`** is a simple, ergonomic, and high-performance Rust wrapper for the **Windows Graphics Capture (WGC)** API (`Windows.Graphics.Capture`), enabling screen and window capture on Windows 10 and 11.
 
-`wgc` is a simple, ergonomic, and high-performance Rust wrapper for the **Windows Graphics Capture (WGC)** API (`Windows.Graphics.Capture`). It allows Rust developers to easily capture windows or entire monitors on Windows 10 and 11.
+## Quick Tour via Examples
 
-## Key Features
+The fastest way to learn `wgc` is to clone the repository and run the included examples:
 
-- **Realtime & AI-Optimized**: High-performance frame capture suitable for streaming, computer vision, and machine learning pipelines.
-- **Ergonomic Iterator API**: Process frames sequentially with standard Rust iterator patterns (`Wgc`).
-- **Interactive Picker & Explicit Handles**: Pick target windows or monitors using the native Windows UI picker or construct targets explicitly from window handles (`HWND`) or monitor handles (`HMONITOR`).
-- **Configurable Formats & Letterboxing**: Supports `RGBA8` and `BGRA8` pixel formats, along with automatic resolution scaling and letterboxing (`pixels_fitted`).
-- **Zero-Copy & Direct3D Access**: Direct access to underlying DirectX/Direct3D 11 surface textures and zero-copy frame handling.
+```bash
+git clone https://github.com/Atliac/wgc.git
+cd wgc
 
-## System Requirements
+# 1. Real-time window/screen viewer with dirty region highlighting
+cargo run --example show_image
 
-- **Operating System**: Windows 10 October 2018 Update (version 1809 / build 17763) or later. Windows 11 is recommended.
-- **Rust Toolchain**: Rust 2024 edition (or compatible Rust compiler toolchain).
-- **Target Platform**: `x86_64-pc-windows-msvc` or `aarch64-pc-windows-msvc`.
+# 2. View only dirty (changed) regions in ReportAndRender mode
+cargo run --example show_dirty
 
-In the following chapters, you will learn how to set up `wgc`, configure capture options, capture frames, and build real-world screen capture applications.
+# 3. Capture a frame and save both native and letterboxed PNGs
+cargo run --example save_image
+
+# 4. Inspect system capabilities supported on your Windows version
+cargo run --example capabilities
+```
+
+## Key Highlights
+
+- **Iterator-based API**: Capture frames sequentially using standard Rust iterator patterns via `Wgc`.
+- **Target Selection**: Select targets interactively with the native Windows picker or directly by window handle (`HWND`) or monitor handle (`HMONITOR`).
+- **AI & ML Friendly**: Automatic aspect-ratio preserving letterbox scaling via `frame.pixels_fitted(desired_size)`.
+- **Dirty Region Support**: Inspect sub-frame regions that changed between consecutive frames via `frame.dirty_regions()`.
+- **Runtime Capability Checks**: Query feature availability on the host Windows system at runtime via the `capabilities` module.

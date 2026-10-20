@@ -14,13 +14,13 @@ A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling s
 
 ## Features
 - **Realtime & AI-optimized**: Capture any window or monitor at any resolution and resize in real-time using letterbox scaling. Ideal for ML pipelines, streaming, and computer vision applications.
-- **Ergonomic iterator-based API**: Capture frames via the `Wgc` struct
-- **Interactive picker dialog**: Select windows or monitors to capture
-- **Configurable pixel formats**: Choose between `RGBA8` and `BGRA8` (with more formats planned) via `WgcSettings`
-- **Automatic buffer recreation**: Automatically recreate buffers when capture resolution changes
-- **Frame size normalization**: Letterboxing for consistent output dimensions
-- **Built-in `tracing` debug logging**: Controlled at runtime with the `RUST_LOG` environment variable
-- **Zero-copy frame access**: Efficient DirectX/Direct2D integration
+- **Ergonomic iterator-based API**: Stream frames sequentially using standard Rust iterator syntax via `Wgc`.
+- **Target selection flexibility**: Interactively select targets via native Windows UI picker or directly target windows (`HWND`) and monitors (`HMONITOR`).
+- **Dirty region reporting**: Query changed sub-rectangles via `frame.dirty_regions()` to avoid re-processing static areas.
+- **Popup & menu capture**: Optionally capture dropdown menus, context menus, and child popups via `include_secondary_windows`.
+- **Configurable pixel formats**: Choose between `RGBA8` and `BGRA8` via `WgcSettings`.
+- **Automatic buffer recreation**: Automatically recreate internal frame pool buffers when target resolution changes.
+- **Frame size normalization**: Aspect-ratio preserving letterboxing for constant-dimension machine learning inputs.
 
 ## Requirements
 
@@ -38,17 +38,18 @@ fn main() -> anyhow::Result<()> {
     // Pick an item to capture (window or monitor)
     let item = new_item_with_picker(None)?;
 
-    // Create the capture instance
+    // Create the capture instance with default settings
     let wgc = Wgc::new(item.clone(), Default::default())?;
 
     // Iterate over captured frames
     for frame in wgc.take(1) {
         let frame = frame?;
-        println!("Captured frame from {} with size {:?}",
-                 item.clone().DisplayName()?,
+        println!("Captured frame from '{}' with size {:?}",
+                 item.DisplayName()?,
                  frame.size()?);
 
         let buffer: Vec<u8> = frame.pixels()?;
+        println!("Buffer length: {} bytes", buffer.len());
     }
     Ok(())
 }
@@ -56,10 +57,29 @@ fn main() -> anyhow::Result<()> {
 
 ## Examples
 
-Check out the [examples](./examples/) directory for more detailed usage examples:
+Clone the repository to explore and run the examples:
 
-- [show_image](./examples/show_image.rs): Captures a screen item and displays it in a window.
-- [save_image](./examples/save_image.rs): Captures a screen item and saves it as an image file to disk.
+```bash
+git clone https://github.com/Atliac/wgc.git
+cd wgc
+```
+
+- [**`show_image`**](./examples/show_image.rs): Real-time screen/window viewer with dirty region highlighting.
+  ```bash
+  cargo run --example show_image
+  ```
+- [**`show_dirty`**](./examples/show_dirty.rs): Demonstrates `ReportAndRender` mode, rendering only changed regions.
+  ```bash
+  cargo run --example show_dirty
+  ```
+- [**`save_image`**](./examples/save_image.rs): Captures a frame and saves native and letterboxed PNGs to disk.
+  ```bash
+  cargo run --example save_image
+  ```
+- [**`capabilities`**](./examples/capabilities.rs): Queries supported Windows Graphics Capture features on the host OS.
+  ```bash
+  cargo run --example capabilities
+  ```
 
 ## Documentation
 

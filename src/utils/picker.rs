@@ -52,6 +52,11 @@ pub fn new_item_with_picker(
     if let Some(owner_window) = owner_window {
         unsafe { initialize_with_window.Initialize(owner_window)? };
     } else {
+        // Creating and immediately pumping/destroying this temporary visible window
+        // initializes the calling thread as a Win32 GUI thread with an active message queue
+        // and establishes foreground status for console/CLI processes. Without this step,
+        // `GetForegroundWindow()` may return an unaccepted handle and the WinRT picker dialog
+        // will fail to appear.
         let _hidden_window = HiddenWindow::new()?;
         unsafe { initialize_with_window.Initialize(GetForegroundWindow())? };
     }
