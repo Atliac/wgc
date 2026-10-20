@@ -12,14 +12,15 @@ A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling s
 **Realtime & AI-optimized** capture for ML and computer vision workflows.
 
 ## Features
-- **Realtime & AI-optimized**: Capture any window or monitor at any resolution and resize in real-time using letterbox scaling. Ideal for ML pipelines, streaming, and computer vision applications.
-- **Ergonomic iterator-based API**: Stream frames sequentially using standard Rust iterator syntax via `Wgc`.
-- **Target selection flexibility**: Interactively select targets via native Windows UI picker or directly target windows (`HWND`) and monitors (`HMONITOR`).
-- **Dirty region reporting**: Query changed sub-rectangles via `frame.dirty_regions()` to avoid re-processing static areas.
-- **Popup & menu capture**: Optionally capture dropdown menus, context menus, and child popups via `include_secondary_windows`.
-- **Fluent builder API**: Configure capture sessions seamlessly using `Wgc::new_from_*().<config>().build()?`.
-- **Automatic buffer recreation**: Automatically recreate internal frame pool buffers when target resolution changes.
-- **Frame size normalization**: Aspect-ratio preserving letterboxing for constant-dimension machine learning inputs.
+
+- **Hardware-Accelerated Capture**: High-performance screen and window capture powered directly by Windows Direct3D 11 and Desktop Window Manager (DWM).
+- **Flexible Target Selection**: Capture entire displays, specific application windows, or let users choose interactively via the native Windows picker.
+- **Idiomatic Streaming**: Stream frames sequentially using standard Rust iterator semantics with automatic resource management.
+- **AI & Computer Vision Ready**: Real-time hardware letterboxing and scaling for uniform machine learning tensor inputs without distortion.
+- **Dirty Region Optimization**: Track changed sub-rectangles between frames to avoid re-processing static visual content.
+- **Adaptive Resolution Handling**: Automatically recreates internal frame buffers on-the-fly when windows resize, move across monitors, or change DPI.
+- **Comprehensive Visual Controls**: Toggle cursor visibility, capture borders, secondary popups/menus, and throttle capture rates.
+- **Configurable Pixel Formats**: Choose between standard color formats like RGBA and BGRA with customizable channel layouts.
 
 ## Requirements
 
@@ -65,7 +66,7 @@ cd wgc
   ```bash
   cargo run --example show_image
   ```
-- [**`show_dirty`**](./examples/show_dirty.rs): Demonstrates `ReportAndRender` mode, rendering only changed regions.
+- [**`show_dirty`**](./examples/show_dirty.rs): Captures and displays only changed pixels between frames.
   ```bash
   cargo run --example show_dirty
   ```
@@ -80,7 +81,7 @@ cd wgc
 
 ## Documentation
 
-- [Migration guide](./MIGRATION.md): how to upgrade from `wgc` 1.x to 2.0.
+- [Migration guide](./MIGRATION.md): how to upgrade from `wgc` v1.0 → v2.x → v3.0.
 - [docs.rs](https://docs.rs/wgc): API reference.
 
 ## License
