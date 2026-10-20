@@ -2,7 +2,7 @@ use std::time::{Duration, Instant};
 
 use crate::*;
 use windows::{
-    Graphics::{Capture::Direct3D11CaptureFrame, SizeInt32},
+    Graphics::{Capture::Direct3D11CaptureFrame, RectInt32, SizeInt32},
     Win32::{
         Graphics::{
             Direct2D::{
@@ -49,6 +49,23 @@ impl Frame {
     pub fn size(&self) -> std::result::Result<FrameSize, WgcError> {
         let size = self.frame.ContentSize()?;
         Ok(size.into())
+    }
+
+    /// Returns the dirty regions (areas that changed since the previous frame) reported for this frame.
+    ///
+    /// On supported systems, dirty regions are always reported automatically by default—no
+    /// configuration is required.
+    ///
+    /// You only need to configure [`WgcSettings::dirty_region_mode`](crate::settings::WgcSettings::dirty_region_mode)
+    /// if you want `ReportAndRender` mode (`Some(true)`), where only changed pixels are rendered by DWM.
+    ///
+    /// The returned vector contains:
+    /// - One or more [`DirtyRegion`] rectangles covering the sub-areas that changed since the previous frame.
+    /// - A single rectangle covering the full frame on the initial frame or after a resolution change.
+    /// - An empty vector if no pixels changed in this frame.
+    pub fn dirty_regions(&self) -> std::result::Result<Vec<DirtyRegion>, WgcError> {
+        let regions = self.frame.DirtyRegions()?;
+        Ok(regions.into_iter().map(DirtyRegion::from).collect())
     }
 
     /// Returns the raw pixel data of the capture frame at its native size.
@@ -238,5 +255,33 @@ impl From<SizeInt32> for FrameSize {
         let width = width.max(0) as u32;
         let height = height.max(0) as u32;
         Self { width, height }
+    }
+}
+
+/// Represents a rectangular region of a frame that changed since the previous frame.
+#[derive(Debug, smart_default::SmartDefault, Clone, Copy, PartialEq, Eq)]
+pub struct DirtyRegion {
+    /// The X-coordinate of the top-left corner of the region, in pixels.
+    #[default(0)]
+    pub x: i32,
+    /// The Y-coordinate of the top-left corner of the region, in pixels.
+    #[default(0)]
+    pub y: i32,
+    /// The width of the region, in pixels.
+    #[default(0)]
+    pub width: u32,
+    /// The height of the region, in pixels.
+    #[default(0)]
+    pub height: u32,
+}
+
+impl From<RectInt32> for DirtyRegion {
+    fn from(rect: RectInt32) -> Self {
+        Self {
+            x: rect.X,
+            y: rect.Y,
+            width: rect.Width.max(0) as u32,
+            height: rect.Height.max(0) as u32,
+        }
     }
 }

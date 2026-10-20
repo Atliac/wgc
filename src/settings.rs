@@ -77,11 +77,14 @@ pub struct WgcSettings {
     pub include_secondary_windows: Option<bool>,
     /// The dirty region mode for capture optimization.
     ///
-    /// Set this field to `Some(true)` to enable dirty region tracking, or `Some(false)`
-    /// to disable it. Leave as `None` to use the system default behavior.
+    /// On supported Windows versions, dirty regions are always reported automatically by default
+    /// via [`Frame::dirty_regions`](crate::frame::Frame::dirty_regions) while rendering the full
+    /// frame (`ReportOnly`). You only need to touch this setting if you want `ReportAndRender`
+    /// mode (`Some(true)`), where DWM only renders the changed areas to save GPU bandwidth.
     ///
-    /// Dirty regions allow the capture system to only report areas of the screen that
-    /// have changed, which can improve performance.
+    /// - `None` (default): Uses the system default behavior (`ReportOnly` on supported systems).
+    /// - `Some(false)`: Explicitly sets `ReportOnly` mode (full frame rendered + dirty regions reported).
+    /// - `Some(true)`: Enables `ReportAndRender` mode (only changed pixels are rendered + dirty regions reported).
     ///
     /// **Note:** This field can only be set to `Some(...)` if
     /// [`is_dirty_region_mode_configurable()`](crate::capabilities::is_dirty_region_mode_configurable)

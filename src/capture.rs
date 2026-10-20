@@ -2,7 +2,10 @@ use tracing::{debug, trace};
 use windows::{
     Foundation::TypedEventHandler,
     Graphics::{
-        Capture::{Direct3D11CaptureFramePool, GraphicsCaptureItem, GraphicsCaptureSession},
+        Capture::{
+            Direct3D11CaptureFramePool, GraphicsCaptureDirtyRegionMode, GraphicsCaptureItem,
+            GraphicsCaptureSession,
+        },
         DirectX::Direct3D11::IDirect3DDevice,
         SizeInt32,
     },
@@ -126,8 +129,13 @@ impl Wgc {
             session.SetIsBorderRequired(display_border)?;
         }
 
-        if let Some(_dirty_region_mode) = settings.dirty_region_mode {
-            unimplemented!("dirty_region_mode is not yet implemented");
+        if let Some(dirty_region_mode) = settings.dirty_region_mode {
+            let mode = if dirty_region_mode {
+                GraphicsCaptureDirtyRegionMode::ReportAndRender
+            } else {
+                GraphicsCaptureDirtyRegionMode::ReportOnly
+            };
+            session.SetDirtyRegionMode(mode)?;
         }
 
         if let Some(min_update_interval) = settings.min_update_interval {
