@@ -31,6 +31,7 @@ use windows_future::AsyncStatus;
 ///   - The picker could not be created.
 ///   - The window initialization failed.
 ///   - The user cancelled the picker (returns `WgcError::NoItemSelected`).
+///   - No foreground window was found (returns `WgcError::NoForegroundWindow`), e.g. in a headless.
 ///   - A Windows API error occurred during async operation.
 ///
 /// # Safety
@@ -49,8 +50,8 @@ pub fn new_item_with_picker(
 ) -> std::result::Result<GraphicsCaptureItem, WgcError> {
     let picker = GraphicsCapturePicker::new()?;
     let initialize_with_window: IInitializeWithWindow = picker.cast()?;
-    if let Some(owner_window) = owner_window {
-        unsafe { initialize_with_window.Initialize(owner_window)? };
+    let target_hwnd = if let Some(owner_window) = owner_window {
+        owner_window
     } else {
         // Creating and immediately pumping/destroying this temporary visible window
         // initializes the calling thread as a Win32 GUI thread with an active message queue
@@ -58,8 +59,14 @@ pub fn new_item_with_picker(
         // `GetForegroundWindow()` may return an unaccepted handle and the WinRT picker dialog
         // will fail to appear.
         let _hidden_window = HiddenWindow::new()?;
-        unsafe { initialize_with_window.Initialize(GetForegroundWindow())? };
+        unsafe { GetForegroundWindow() }
+    };
+
+    if target_hwnd.0.is_null() {
+        return Err(WgcError::NoForegroundWindow);
     }
+
+    unsafe { initialize_with_window.Initialize(target_hwnd)? };
     let op = picker.PickSingleItemAsync()?;
     let mut msg = MSG::default();
     unsafe {

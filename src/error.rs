@@ -4,4 +4,8 @@ pub enum WgcError {
     WindowsError(#[from] windows::core::Error),
     #[error("No item selected")]
     NoItemSelected,
+    #[error(
+        "No foreground window found. The picker requires an interactive desktop session and cannot run in a headless session."
+    )]
+    NoForegroundWindow,
 }
