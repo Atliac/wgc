@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.1](https://github.com/Atliac/wgc/compare/v3.0.0...v3.0.1) - 2026-10-24
+
+### Fixed
+
+- update logging level to trace and handle image setting errors ([#80](https://github.com/Atliac/wgc/pull/80))
+
+### Other
+
+- release v3.0.0 ([#79](https://github.com/Atliac/wgc/pull/79))
+
 ## [3.0.0](https://github.com/Atliac/wgc/compare/v2.0.3...v3.0.0) - 2026-10-24
 
 ### Other
