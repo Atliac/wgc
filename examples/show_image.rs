@@ -6,10 +6,8 @@ use wgc::*;
 
 #[show_image::main]
 fn main() -> anyhow::Result<()> {
-    // run with `cargo run --example show_image` to see debug output,
-    // set `RUST_LOG=wgc=trace` environment variable to see verbose output
     use tracing_subscriber::EnvFilter;
-    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("wgc=debug"));
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("wgc=trace"));
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
     let supports_dirty_regions = capabilities::is_dirty_region_mode_configurable().unwrap_or(false);
@@ -55,13 +53,19 @@ fn main() -> anyhow::Result<()> {
                 ImageInfo::rgba8_premultiplied(frame_size.width, frame_size.height),
                 image.as_raw(),
             );
-            window.set_image(title.clone(), view)?;
+            if window.set_image(title.clone(), view).is_err() {
+                println!("Bye!");
+                break;
+            }
         } else {
             let image = ImageView::new(
                 ImageInfo::rgba8_premultiplied(frame_size.width, frame_size.height),
                 &buffer,
             );
-            window.set_image(title.clone(), image)?;
+            if window.set_image(title.clone(), image).is_err() {
+                println!("Bye!");
+                break;
+            }
         }
     }
     Ok(())
