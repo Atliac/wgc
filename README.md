@@ -6,21 +6,21 @@
 [![Rust CI](https://github.com/Atliac/wgc/actions/workflows/ci.yml/badge.svg)](https://github.com/Atliac/wgc/actions/workflows/ci.yml)
 [![Stability: Stable](https://img.shields.io/badge/stability-stable-brightgreen)](https://github.com/Atliac/wgc)
 [![Maintenance: Active](https://img.shields.io/badge/maintenance-active-blue)](https://github.com/Atliac/wgc)
-[![Docs: Tutorial](https://img.shields.io/badge/Docs-Tutorial-blue)](https://books.atliac.com/wgc)
 
 A simple and ergonomic Rust wrapper for Windows.Graphics.Capture API, enabling screen/window capture on Windows 10/11.
 
 **Realtime & AI-optimized** capture for ML and computer vision workflows.
 
 ## Features
-- **Realtime & AI-optimized**: Capture any window or monitor at any resolution and resize in real-time using letterbox scaling. Ideal for ML pipelines, streaming, and computer vision applications.
-- **Ergonomic iterator-based API**: Stream frames sequentially using standard Rust iterator syntax via `Wgc`.
-- **Target selection flexibility**: Interactively select targets via native Windows UI picker or directly target windows (`HWND`) and monitors (`HMONITOR`).
-- **Dirty region reporting**: Query changed sub-rectangles via `frame.dirty_regions()` to avoid re-processing static areas.
-- **Popup & menu capture**: Optionally capture dropdown menus, context menus, and child popups via `include_secondary_windows`.
-- **Configurable pixel formats**: Choose between `RGBA8` and `BGRA8` via `WgcSettings`.
-- **Automatic buffer recreation**: Automatically recreate internal frame pool buffers when target resolution changes.
-- **Frame size normalization**: Aspect-ratio preserving letterboxing for constant-dimension machine learning inputs.
+
+- **Hardware-Accelerated Capture**: High-performance screen and window capture powered directly by Windows Direct3D 11 and Desktop Window Manager (DWM).
+- **Flexible Target Selection**: Capture entire displays, specific application windows, or let users choose interactively via the native Windows picker.
+- **Idiomatic Streaming**: Stream frames sequentially using standard Rust iterator semantics with automatic resource management.
+- **AI & Computer Vision Ready**: Real-time hardware letterboxing and scaling for uniform machine learning tensor inputs without distortion.
+- **Dirty Region Optimization**: Track changed sub-rectangles between frames to avoid re-processing static visual content.
+- **Adaptive Resolution Handling**: Automatically recreates internal frame buffers on-the-fly when windows resize, move across monitors, or change DPI.
+- **Comprehensive Visual Controls**: Toggle cursor visibility, capture borders, secondary popups/menus, and throttle capture rates.
+- **Configurable Pixel Formats**: Choose between standard color formats like RGBA and BGRA with customizable channel layouts.
 
 ## Requirements
 
@@ -35,18 +35,16 @@ Here's a basic example of how to capture frames:
 use wgc::*;
 
 fn main() -> anyhow::Result<()> {
-    // Pick an item to capture (window or monitor)
-    let item = new_item_with_picker(None)?;
-
-    // Create the capture instance with default settings
-    let wgc = Wgc::new(item.clone(), Default::default())?;
+    // Pick an item to capture and configure capture settings with builder
+    let wgc = Wgc::new_from_picker(None)?
+        .frame_queue_length(2)
+        .capture_cursor(false)
+        .build()?;
 
     // Iterate over captured frames
     for frame in wgc.take(1) {
         let frame = frame?;
-        println!("Captured frame from '{}' with size {:?}",
-                 item.DisplayName()?,
-                 frame.size()?);
+        println!("Captured frame with size {:?}", frame.size()?);
 
         let buffer: Vec<u8> = frame.pixels()?;
         println!("Buffer length: {} bytes", buffer.len());
@@ -68,7 +66,7 @@ cd wgc
   ```bash
   cargo run --example show_image
   ```
-- [**`show_dirty`**](./examples/show_dirty.rs): Demonstrates `ReportAndRender` mode, rendering only changed regions.
+- [**`show_dirty`**](./examples/show_dirty.rs): Captures and displays only changed pixels between frames.
   ```bash
   cargo run --example show_dirty
   ```
@@ -83,8 +81,7 @@ cd wgc
 
 ## Documentation
 
-- [Tutorial](https://books.atliac.com/wgc): narrative documentation and architecture overview.
-- [Migration guide](./MIGRATION.md): how to upgrade from `wgc` 1.x to 2.0.
+- [Migration guide](./MIGRATION.md): how to upgrade from `wgc` v1.0 → v2.x → v3.0.
 - [docs.rs](https://docs.rs/wgc): API reference.
 
 ## License

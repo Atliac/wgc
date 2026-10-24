@@ -1,12 +1,11 @@
 [package]
 name = "wgc"
-version = "2.0.3"
+version = "3.0.0"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 authors = ["Atliac"]
 description = "An ergonomic Rust wrapper for Windows.Graphics.Capture API"
 repository = "https://github.com/atliac/wgc"
-documentation = "https://books.atliac.com/wgc"
 homepage = "https://github.com/atliac/wgc"
 readme = "README.md"
 keywords = ["windows", "screen-capture", "recording", "machine-learning"]

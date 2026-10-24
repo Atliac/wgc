@@ -45,7 +45,7 @@ use windows_future::AsyncStatus;
 /// let owner hwnd = /* obtain HWND handle or None */;
 /// let capture_item = new_item_with_picker(Some(hwnd))?;
 /// ```
-pub fn new_item_with_picker(
+pub(crate) fn new_item_with_picker(
     owner_window: Option<HWND>,
 ) -> std::result::Result<GraphicsCaptureItem, WgcError> {
     let picker = GraphicsCapturePicker::new()?;

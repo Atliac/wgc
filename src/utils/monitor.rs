@@ -36,7 +36,7 @@ use crate::*;
 /// let monitor = /* obtain HMONITOR handle */;
 /// let capture_item = new_item_from_monitor(monitor)?;
 /// ```
-pub fn new_item_from_monitor(
+pub(crate) fn new_item_from_monitor(
     monitor: HMONITOR,
 ) -> std::result::Result<GraphicsCaptureItem, WgcError> {
     let interop = windows::core::factory::<GraphicsCaptureItem, IGraphicsCaptureItemInterop>()?;

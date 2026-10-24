@@ -34,7 +34,7 @@ use crate::*;
 /// let hwnd = /* obtain HWND handle */;
 /// let capture_item = new_item_from_hwnd(hwnd)?;
 /// ```
-pub fn new_item_from_hwnd(hwnd: HWND) -> std::result::Result<GraphicsCaptureItem, WgcError> {
+pub(crate) fn new_item_from_hwnd(hwnd: HWND) -> std::result::Result<GraphicsCaptureItem, WgcError> {
     let interop = windows::core::factory::<GraphicsCaptureItem, IGraphicsCaptureItemInterop>()?;
     let item: GraphicsCaptureItem = unsafe { interop.CreateForWindow(hwnd) }?;
     Ok(item)

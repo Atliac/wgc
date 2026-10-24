@@ -8,10 +8,9 @@ fn main() -> anyhow::Result<()> {
     let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
-    // pick an item to capture
-    let item = new_item_with_picker(None)?;
-
-    let wgc = Wgc::new(item.clone(), Default::default())?;
+    // pick an item to capture and create capture session
+    let wgc = Wgc::new_from_picker(None)?.build()?;
+    let display_name = wgc.item().DisplayName()?;
 
     // The size to fit a captured frame into when using `pixels_fitted`.
     // Pick something with a different aspect ratio than your source to see
@@ -25,7 +24,7 @@ fn main() -> anyhow::Result<()> {
     for frame in wgc.take(1) {
         let frame = frame?;
         let frame_size = frame.size()?;
-        println!("{} {:?}", item.clone().DisplayName()?, frame_size);
+        println!("{} {:?}", display_name, frame_size);
 
         // `pixels` returns the frame at its native size
         let time = std::time::Instant::now();

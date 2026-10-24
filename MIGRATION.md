@@ -2,7 +2,115 @@
 
 This document describes breaking API changes and how to update downstream code.
 
+- [v2.x → v3.0](#v2x--v30)
 - [v1.x → v2.0](#v1x--v20)
+
+## v2.x → v3.0
+
+### Summary of breaking changes
+
+| # | Change | What you need to do |
+|---|--------|---------------------|
+| 1 | `Wgc::new(item, settings)` removed in favor of `Wgc::new_from_*().<config>().build()?` | Use `Wgc::new_from_picker`, `new_from_hwnd`, `new_from_monitor`, or `new_from_item` and call `.build()?` |
+| 2 | `WgcSettings` struct is now crate-internal (`pub(crate)`) | Configure options using builder methods (`.capture_cursor(bool)`, `.dirty_region_mode(bool)`, etc.) |
+| 3 | Target acquisition functions (`new_item_*`) are now internal | Call `Wgc::new_from_*` directly instead of manually creating a `GraphicsCaptureItem` |
+| 4 | `Frame::new` is now crate-internal (`pub(crate)`) | Obtain `Frame` instances by iterating over `Wgc` |
+| 5 | External mdBook documentation removed | Refer to crate rustdoc on [docs.rs](https://docs.rs/wgc) or the Quick Start guide in `lib.rs` |
+
+---
+
+### 1. `Wgc::new(item, settings)` → `Wgc::new_from_*` Builder API
+
+The `Wgc::new(item, settings)` constructor has been replaced by a unified, fluent builder pattern. Target selection and capture configuration are now consolidated into builder entry points.
+
+**Before (2.x)**
+
+```rust
+use wgc::*;
+
+// 1. Manually obtain capture item
+let item = new_item_with_picker(None)?;
+
+// 2. Configure settings struct
+let mut settings = WgcSettings::default();
+settings.capture_cursor = Some(false);
+settings.dirty_region_mode = Some(true);
+
+// 3. Initialize capture
+let wgc = Wgc::new(item, settings)?;
+```
+
+**After (3.0)**
+
+```rust
+use wgc::*;
+
+let wgc = Wgc::new_from_picker(None)?
+    .capture_cursor(false)
+    .dirty_region_mode(true)
+    .build()?;
+```
+
+If you already have a `GraphicsCaptureItem` (e.g., from an external interop call), use `Wgc::new_from_item`:
+
+```rust
+let wgc = Wgc::new_from_item(item)
+    .capture_cursor(false)
+    .build()?;
+```
+
+Constructor mapping:
+
+| 2.x | 3.0 |
+|---|---|
+| `new_item_with_picker(owner)` + `Wgc::new(item, ..)` | `Wgc::new_from_picker(owner)?.<config>().build()?` |
+| `new_item_from_hwnd(hwnd)` + `Wgc::new(item, ..)` | `Wgc::new_from_hwnd(hwnd)?.<config>().build()?` |
+| `new_item_from_monitor(hmonitor)` + `Wgc::new(item, ..)` | `Wgc::new_from_monitor(hmonitor)?.<config>().build()?` |
+| `Wgc::new(item, settings)` | `Wgc::new_from_item(item).<config>().build()?` |
+
+---
+
+### 2. `WgcSettings` Removed From Public API
+
+`WgcSettings` was previously `#[non_exhaustive]` and configured via mutable field assignment. In 3.0, it is internal. All configuration is done via builder methods taking concrete types:
+
+| 2.x Field Assignment | 3.0 Builder Method |
+|---|---|
+| `settings.pixel_format = format` | `.pixel_format(format)` |
+| `settings.frame_queue_length = n` | `.frame_queue_length(n)` |
+| `settings.capture_cursor = Some(bool)` | `.capture_cursor(bool)` |
+| `settings.display_border = Some(bool)` | `.display_border(bool)` |
+| `settings.include_secondary_windows = Some(bool)` | `.include_secondary_windows(bool)` |
+| `settings.dirty_region_mode = Some(bool)` | `.dirty_region_mode(bool)` |
+| `settings.min_update_interval = Some(duration)` | `.min_update_interval(duration)` |
+| `settings.frame_interpolation_mode = mode` | `.frame_interpolation_mode(mode)` |
+
+If you do not call an optional configuration method, it defaults to the Windows OS default behavior (equivalent to `None` in 2.x).
+
+---
+
+### 3. Target Acquisition Helpers (`new_item_*`) Are Internal
+
+`new_item_with_picker`, `new_item_from_hwnd`, and `new_item_from_monitor` are no longer exported by `wgc`. Instead, use `Wgc::new_from_*` directly.
+
+If you need to access properties of the captured target (e.g. `item.DisplayName()`), call `.item()` on the `Wgc` or `WgcBuilder` instance:
+
+```rust
+let wgc = Wgc::new_from_picker(None)?.build()?;
+let title = wgc.item().DisplayName()?;
+```
+
+---
+
+### Verification checklist (v3.0)
+
+- [ ] Replace `Wgc::new(...)` with `Wgc::new_from_picker`, `new_from_hwnd`, `new_from_monitor`, or `new_from_item` followed by `.build()?`.
+- [ ] Remove all references to `WgcSettings` and chained assignments; use builder methods instead.
+- [ ] Replace calls to standalone `new_item_with_picker`, `new_item_from_hwnd`, and `new_item_from_monitor` with the corresponding `Wgc::new_from_*` methods.
+- [ ] Replace `item.DisplayName()` calls with `wgc.item().DisplayName()`.
+- [ ] Bump the `wgc` dependency to `3`.
+
+---
 
 ## v1.x → v2.0
 
@@ -13,7 +121,7 @@ This document describes breaking API changes and how to update downstream code.
 | 1 | `Frame::read_pixels(Option<FrameSize>)` split into `Frame::pixels()` and `Frame::pixels_fitted(FrameSize)` | Rename calls (see [below](#1-frameread_pixels--framepixels--framepixels_fitted)) |
 | 2 | `WgcSettings` is now `#[non_exhaustive]` | Build it from `WgcSettings::default()` and assign fields (see [below](#2-wgcsettings-is-now-non_exhaustive)) |
 | 3 | The `tracing` Cargo feature was removed; `tracing` is a required dependency | Drop `--features tracing` and `features = ["tracing"]` |
-| 4 | The `tutorial` example was removed | Use the [examples](./examples/) and [tutorial docs](https://books.atliac.com/wgc) |
+| 4 | The `tutorial` example was removed | Use the [examples](./examples/) |
 
 ### 1. `Frame::read_pixels` → `Frame::pixels` / `Frame::pixels_fitted`
 
@@ -177,8 +285,6 @@ RUST_LOG=wgc=debug cargo run --example save_image
 - Read the [save_image](./examples/save_image.rs) example, which now demonstrates both
   `pixels()` (native size) and `pixels_fitted()` (letterboxed scaling).
 - Read the [show_image](./examples/show_image.rs) example for a continuous capture loop.
-- Consult the [tutorial documentation](https://books.atliac.com/wgc) for a
-  narrative walkthrough of the crate.
 
 
 ### Verification checklist

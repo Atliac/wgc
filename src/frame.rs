@@ -23,7 +23,7 @@ pub struct Frame {
     wgc_settings: WgcSettings,
 }
 impl Frame {
-    pub fn new(
+    pub(crate) fn new(
         frame: Direct3D11CaptureFrame,
         d2d1_context: ID2D1DeviceContext,
         pixel_format: PixelFormat,
@@ -56,8 +56,8 @@ impl Frame {
     /// On supported systems, dirty regions are always reported automatically by default—no
     /// configuration is required.
     ///
-    /// You only need to configure [`WgcSettings::dirty_region_mode`](crate::settings::WgcSettings::dirty_region_mode)
-    /// if you want `ReportAndRender` mode (`Some(true)`), where only changed pixels are rendered by DWM.
+    /// You only need to configure [`WgcBuilder::dirty_region_mode`](crate::builder::WgcBuilder::dirty_region_mode)
+    /// if you want `ReportAndRender` mode (`true`), where only changed pixels are rendered by DWM.
     ///
     /// The returned vector contains:
     /// - One or more [`DirtyRegion`] rectangles covering the sub-areas that changed since the previous frame.

@@ -14,19 +14,16 @@ fn main() -> anyhow::Result<()> {
 
     let supports_dirty_regions = capabilities::is_dirty_region_mode_configurable().unwrap_or(false);
 
-    // pick an item to capture
-    let item = new_item_with_picker(None)?;
-
-    let mut settings = WgcSettings::default();
+    let mut builder = Wgc::new_from_picker(None)?;
 
     if capabilities::is_cursor_configurable()? {
-        settings.capture_cursor = Some(false);
+        builder = builder.capture_cursor(false);
     }
 
-    let wgc = Wgc::new(item.clone(), settings)?;
+    let wgc = builder.build()?;
 
-    let title = item
-        .clone()
+    let title = wgc
+        .item()
         .DisplayName()
         .unwrap_or_default()
         .to_string_lossy();
