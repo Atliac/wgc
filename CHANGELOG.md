@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0](https://github.com/Atliac/wgc/compare/v2.0.3...v3.0.0) - 2026-10-24
+
+### Other
+
+- Builder API ([#78](https://github.com/Atliac/wgc/pull/78))
+- Fix/add error message for headless session ([#76](https://github.com/Atliac/wgc/pull/76))
+
 ## [2.0.3](https://github.com/Atliac/wgc/compare/v2.0.2...v2.0.3) - 2026-10-20
 
 ### Fixed
