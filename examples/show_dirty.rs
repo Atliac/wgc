@@ -35,7 +35,11 @@ fn main() -> anyhow::Result<()> {
 
     let wgc = builder.build()?;
 
-    let title = wgc.item().DisplayName().unwrap_or_default().to_string_lossy();
+    let title = wgc
+        .item()
+        .DisplayName()
+        .unwrap_or_default()
+        .to_string_lossy();
     let window =
         show_image::create_window(format!("{title} - Only Dirty Regions"), Default::default())?;
 

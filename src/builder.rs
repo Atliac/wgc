@@ -5,8 +5,8 @@ use windows::{
 };
 
 use crate::{
-    new_item_from_hwnd, new_item_from_monitor, new_item_with_picker, FrameInterpolationMode,
-    PixelFormat, Wgc, WgcError, WgcSettings,
+    FrameInterpolationMode, PixelFormat, Wgc, WgcError, WgcSettings, new_item_from_hwnd,
+    new_item_from_monitor, new_item_with_picker,
 };
 
 /// Fluent builder for configuring and creating a [`Wgc`] capture session.
@@ -135,4 +135,3 @@ impl WgcBuilder {
         Wgc::from_builder(self)
     }
 }
-
