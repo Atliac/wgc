@@ -1,0 +1,86 @@
+use image::{ImageBuffer, Rgba, RgbaImage};
+use imageproc::drawing::draw_hollow_rect_mut;
+use imageproc::rect::Rect;
+use show_image::{ImageInfo, ImageView, WindowOptions};
+use wgc::*;
+
+#[show_image::main]
+fn main() -> anyhow::Result<()> {
+    use tracing_subscriber::EnvFilter;
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("wgc=trace"));
+    tracing_subscriber::fmt().with_env_filter(filter).init();
+
+    let supports_dirty_regions = capabilities::is_dirty_region_mode_configurable().unwrap_or(false);
+
+    let mut builder = Wgc::new_from_picker(None)?;
+    builder = builder.frame_interpolation_mode(FrameInterpolationMode::NearestNeighbor);
+
+    if capabilities::is_cursor_configurable()? {
+        builder = builder.capture_cursor(false);
+    }
+    let wgc = builder.build()?;
+
+    let title = wgc
+        .item()
+        .DisplayName()
+        .unwrap_or_default()
+        .to_string_lossy();
+    let window_options = WindowOptions::default()
+        .set_default_controls(false)
+        .set_resizable(false);
+    let window = show_image::create_window(title.clone(), window_options)?;
+
+    for frame in wgc {
+        let window_inner_size;
+        if let Ok(wis) = window.run_function_wait(|window| window.inner_size()) {
+            window_inner_size = wis;
+        } else {
+            break;
+        }
+        if window_inner_size.x == 0 || window_inner_size.y == 0 {
+            continue;
+        }
+        let frame = frame?;
+        let frame_size = frame.size()?;
+        window.run_function(move |mut w| {
+            w.set_inner_size((frame_size.width, frame_size.height));
+        });
+        let buffer = frame.pixels()?;
+
+        if supports_dirty_regions {
+            let mut image: RgbaImage =
+                ImageBuffer::from_raw(frame_size.width, frame_size.height, buffer).ok_or_else(
+                    || anyhow::anyhow!("buffer size does not match frame dimensions"),
+                )?;
+
+            if let Ok(regions) = frame.dirty_regions() {
+                let border_color = Rgba([0, 255, 0, 255]); // Bright green
+                for region in regions {
+                    if region.width > 0 && region.height > 0 {
+                        let rect =
+                            Rect::at(region.x, region.y).of_size(region.width, region.height);
+                        draw_hollow_rect_mut(&mut image, rect, border_color);
+                    }
+                }
+            }
+            let view = ImageView::new(
+                ImageInfo::rgba8_premultiplied(frame_size.width, frame_size.height),
+                image.as_raw(),
+            );
+            if window.set_image(title.clone(), view).is_err() {
+                break;
+            }
+        } else {
+            let image = ImageView::new(
+                ImageInfo::rgba8_premultiplied(frame_size.width, frame_size.height),
+                &buffer,
+            );
+            if window.set_image(title.clone(), image).is_err() {
+                break;
+            }
+        }
+    }
+
+    println!("Bye!");
+    Ok(())
+}
