@@ -6,7 +6,10 @@ use windows::{
     Win32::{
         Graphics::{
             Direct2D::{
-                Common::{D2D_RECT_F, D2D_SIZE_U, D2D1_COLOR_F, D2D1_PIXEL_FORMAT},
+                Common::{
+                    D2D_RECT_F, D2D_SIZE_U, D2D1_ALPHA_MODE, D2D1_ALPHA_MODE_PREMULTIPLIED,
+                    D2D1_COLOR_F, D2D1_PIXEL_FORMAT,
+                },
                 D2D1_BITMAP_PROPERTIES1, ID2D1Bitmap1, ID2D1DeviceContext,
             },
             Dxgi::IDXGISurface,
@@ -15,6 +18,17 @@ use windows::{
     },
     core::Interface,
 };
+
+/// Alpha mode used for every Direct2D bitmap this module creates.
+///
+/// Direct2D supports only a limited set of pixel-format/alpha-mode combinations. For the
+/// 32-bit formats this crate exposes (`B8G8R8A8_UNORM` and `R8G8B8A8_UNORM`), bitmaps and
+/// render targets support `PREMULTIPLIED`, `IGNORE`, and `UNKNOWN`; `STRAIGHT` is only valid
+/// for `A8_UNORM`. Since the colors we read back are produced by Direct2D's premultiplied
+/// compositing pipeline, [`Frame::pixels`] and [`Frame::pixels_fitted`] therefore return
+/// premultiplied bytes.
+const ALPHA_MODE: D2D1_ALPHA_MODE = D2D1_ALPHA_MODE_PREMULTIPLIED;
+
 #[derive(Debug)]
 pub struct Frame {
     frame: Direct3D11CaptureFrame,
@@ -128,7 +142,9 @@ impl Frame {
     /// Returns the raw pixel data of the capture frame at its native size.
     ///
     /// The returned buffer uses the configured [`PixelFormat`]. For formats with an alpha
-    /// channel, the color channels are **premultiplied by alpha**.
+    /// channel, the color channels are **premultiplied by alpha** instead of straight alpha:
+    /// Direct2D only accepts `D2D1_ALPHA_MODE_PREMULTIPLIED` (or `IGNORE`/`UNKNOWN`) for
+    /// `B8G8R8A8_UNORM` and `R8G8B8A8_UNORM` bitmaps, and it composites in premultiplied form.
     ///
     /// # Returns
     ///
@@ -146,7 +162,9 @@ impl Frame {
     /// image will be letterboxed (centered with gray borders) to fill the desired size.
     ///
     /// The returned buffer uses the configured [`PixelFormat`]. For formats with an alpha
-    /// channel, the color channels are **premultiplied by alpha**.
+    /// channel, the color channels are **premultiplied by alpha** instead of straight alpha:
+    /// Direct2D only accepts `D2D1_ALPHA_MODE_PREMULTIPLIED` (or `IGNORE`/`UNKNOWN`) for
+    /// `B8G8R8A8_UNORM` and `R8G8B8A8_UNORM` bitmaps, and it composites in premultiplied form.
     ///
     /// # Arguments
     ///
@@ -229,8 +247,7 @@ impl Frame {
         let bitmap_properties = D2D1_BITMAP_PROPERTIES1 {
             pixelFormat: D2D1_PIXEL_FORMAT {
                 format: self.pixel_format.into(),
-                alphaMode:
-                    windows::Win32::Graphics::Direct2D::Common::D2D1_ALPHA_MODE_PREMULTIPLIED,
+                alphaMode: ALPHA_MODE,
             },
             bitmapOptions: windows::Win32::Graphics::Direct2D::D2D1_BITMAP_OPTIONS_TARGET,
             ..Default::default()
@@ -255,8 +272,7 @@ impl Frame {
         let bitmap_properties = D2D1_BITMAP_PROPERTIES1 {
             pixelFormat: D2D1_PIXEL_FORMAT {
                 format: self.pixel_format.into(),
-                alphaMode:
-                    windows::Win32::Graphics::Direct2D::Common::D2D1_ALPHA_MODE_PREMULTIPLIED,
+                alphaMode: ALPHA_MODE,
             },
             bitmapOptions: windows::Win32::Graphics::Direct2D::D2D1_BITMAP_OPTIONS_CPU_READ
                 | windows::Win32::Graphics::Direct2D::D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
