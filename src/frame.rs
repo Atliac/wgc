@@ -68,6 +68,63 @@ impl Frame {
         Ok(regions.into_iter().map(DirtyRegion::from).collect())
     }
 
+    /// Returns the dirty regions transformed into the coordinate space of
+    /// [`Frame::pixels_fitted`] for `desired_size`.
+    ///
+    /// The regions are scaled and letterboxed in the same way as the frame pixels,
+    /// so they can be drawn directly on the fitted image.
+    pub fn dirty_regions_fitted(
+        &self,
+        desired_size: FrameSize,
+    ) -> std::result::Result<Vec<DirtyRegion>, WgcError> {
+        let frame_size = self.size()?;
+        let regions = self.dirty_regions()?;
+
+        if frame_size == desired_size {
+            return Ok(regions);
+        }
+
+        if frame_size.width == 0 || frame_size.height == 0 {
+            return Ok(Vec::new());
+        }
+
+        let scale = (desired_size.width as f32 / frame_size.width as f32)
+            .min(desired_size.height as f32 / frame_size.height as f32);
+        let offset_x = (desired_size.width as f32 - frame_size.width as f32 * scale) / 2.0;
+        let offset_y = (desired_size.height as f32 - frame_size.height as f32 * scale) / 2.0;
+
+        Ok(regions
+            .into_iter()
+            .filter_map(|region| {
+                if region.width == 0 || region.height == 0 {
+                    return None;
+                }
+
+                let left = (offset_x + region.x as f32 * scale).floor().max(0.0) as u32;
+                let top = (offset_y + region.y as f32 * scale).floor().max(0.0) as u32;
+                let right = (offset_x + (region.x as f32 + region.width as f32) * scale)
+                    .ceil()
+                    .max(0.0)
+                    .min(desired_size.width as f32) as u32;
+                let bottom = (offset_y + (region.y as f32 + region.height as f32) * scale)
+                    .ceil()
+                    .max(0.0)
+                    .min(desired_size.height as f32) as u32;
+
+                if right <= left || bottom <= top {
+                    return None;
+                }
+
+                Some(DirtyRegion {
+                    x: left as i32,
+                    y: top as i32,
+                    width: right - left,
+                    height: bottom - top,
+                })
+            })
+            .collect())
+    }
+
     /// Returns the raw pixel data of the capture frame at its native size.
     ///
     /// # Returns

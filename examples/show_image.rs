@@ -1,7 +1,7 @@
 use image::{ImageBuffer, Rgba, RgbaImage};
 use imageproc::drawing::draw_hollow_rect_mut;
 use imageproc::rect::Rect;
-use show_image::{ImageInfo, ImageView};
+use show_image::{ImageInfo, ImageView, WindowOptions};
 use wgc::*;
 
 #[show_image::main]
@@ -24,12 +24,24 @@ fn main() -> anyhow::Result<()> {
         .DisplayName()
         .unwrap_or_default()
         .to_string_lossy();
-    let window = show_image::create_window(title.clone(), Default::default())?;
+    let window_options = WindowOptions::default().set_default_controls(false);
+    let window = show_image::create_window(title.clone(), window_options)?;
 
     for frame in wgc {
+        let frame_size;
+        if let Ok(window_inner_size) = window.run_function_wait(|window| window.inner_size()) {
+            frame_size = FrameSize {
+                width: window_inner_size.x,
+                height: window_inner_size.y,
+            };
+        } else {
+            break;
+        }
+        if frame_size.width == 0 || frame_size.height == 0 {
+            continue;
+        }
         let frame = frame?;
-        let frame_size = frame.size()?;
-        let buffer = frame.pixels()?;
+        let buffer = frame.pixels_fitted(frame_size)?;
 
         if supports_dirty_regions {
             let mut image: RgbaImage =
@@ -37,7 +49,7 @@ fn main() -> anyhow::Result<()> {
                     || anyhow::anyhow!("buffer size does not match frame dimensions"),
                 )?;
 
-            if let Ok(regions) = frame.dirty_regions() {
+            if let Ok(regions) = frame.dirty_regions_fitted(frame_size) {
                 let border_color = Rgba([0, 255, 0, 255]); // Bright green
                 for region in regions {
                     if region.width > 0 && region.height > 0 {

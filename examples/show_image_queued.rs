@@ -20,6 +20,7 @@ fn main() -> anyhow::Result<()> {
         builder = builder.capture_cursor(false);
     }
     const FRAME_QUEUE_LENGTH: i32 = 10;
+    const FPS: u32 = 3;
     let wgc = builder.frame_queue_length(FRAME_QUEUE_LENGTH).build()?;
 
     let title = wgc
@@ -27,12 +28,25 @@ fn main() -> anyhow::Result<()> {
         .DisplayName()
         .unwrap_or_default()
         .to_string_lossy();
-    let window = show_image::create_window(title.clone(), Default::default())?;
+    let title = format!("{title} - queue length ({FRAME_QUEUE_LENGTH})/FPS ({FPS})");
+    let window_options = show_image::WindowOptions::default().set_default_controls(false);
+    let window = show_image::create_window(title.clone(), window_options)?;
 
     for frame in wgc {
+        let frame_size;
+        if let Ok(window_inner_size) = window.run_function_wait(|window| window.inner_size()) {
+            frame_size = FrameSize {
+                width: window_inner_size.x,
+                height: window_inner_size.y,
+            };
+        } else {
+            break;
+        }
+        if frame_size.width == 0 || frame_size.height == 0 {
+            continue;
+        }
         let frame = frame?;
-        let frame_size = frame.size()?;
-        let buffer = frame.pixels()?;
+        let buffer = frame.pixels_fitted(frame_size)?;
 
         if supports_dirty_regions {
             let mut image: RgbaImage =
@@ -40,7 +54,7 @@ fn main() -> anyhow::Result<()> {
                     || anyhow::anyhow!("buffer size does not match frame dimensions"),
                 )?;
 
-            if let Ok(regions) = frame.dirty_regions() {
+            if let Ok(regions) = frame.dirty_regions_fitted(frame_size) {
                 let border_color = Rgba([0, 255, 0, 255]); // Bright green
                 for region in regions {
                     if region.width > 0 && region.height > 0 {
@@ -67,7 +81,7 @@ fn main() -> anyhow::Result<()> {
                 break;
             }
         }
-        sleep(Duration::from_secs(3) / FRAME_QUEUE_LENGTH as u32);
+        sleep(Duration::from_secs(1) / FPS);
     }
     println!("Bye!");
     Ok(())
