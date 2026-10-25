@@ -70,10 +70,10 @@ fn main() -> anyhow::Result<()> {
             display_image.as_raw(),
         );
         if window.set_image(&title, image).is_err() {
-            println!("Bye!");
             break;
         }
     }
 
+    println!("Bye!");
     Ok(())
 }

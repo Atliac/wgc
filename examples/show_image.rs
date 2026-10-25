@@ -53,7 +53,6 @@ fn main() -> anyhow::Result<()> {
                 image.as_raw(),
             );
             if window.set_image(title.clone(), view).is_err() {
-                println!("Bye!");
                 break;
             }
         } else {
@@ -62,10 +61,11 @@ fn main() -> anyhow::Result<()> {
                 &buffer,
             );
             if window.set_image(title.clone(), image).is_err() {
-                println!("Bye!");
                 break;
             }
         }
     }
+
+    println!("Bye!");
     Ok(())
 }

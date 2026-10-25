@@ -304,7 +304,7 @@ impl Iterator for Wgc {
                 }
                 if !is_pool_empty {
                     is_pool_empty = true;
-                    trace!("Waiting for next frame");
+                    debug!("Waiting for next frame");
                 }
                 match GetMessageW(&mut msg, None, 0, 0).0 {
                     -1 => {
