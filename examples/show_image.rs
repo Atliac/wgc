@@ -17,7 +17,6 @@ fn main() -> anyhow::Result<()> {
     if capabilities::is_cursor_configurable()? {
         builder = builder.capture_cursor(false);
     }
-
     let wgc = builder.build()?;
 
     let title = wgc

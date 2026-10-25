@@ -1,3 +1,4 @@
+use tracing::debug;
 use windows::{
     Graphics::Capture::GraphicsCaptureItem,
     Win32::{
@@ -39,7 +40,9 @@ use crate::*;
 pub(crate) fn new_item_from_monitor(
     monitor: HMONITOR,
 ) -> std::result::Result<GraphicsCaptureItem, WgcError> {
+    debug!("Creating capture item for monitor: {:?}", monitor);
     let interop = windows::core::factory::<GraphicsCaptureItem, IGraphicsCaptureItemInterop>()?;
     let item: GraphicsCaptureItem = unsafe { interop.CreateForMonitor(monitor) }?;
+    debug!("Created capture item for monitor: {:?}", monitor);
     Ok(item)
 }

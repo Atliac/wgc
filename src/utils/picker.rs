@@ -51,6 +51,7 @@ pub(crate) fn new_item_with_picker(
     let picker = GraphicsCapturePicker::new()?;
     let initialize_with_window: IInitializeWithWindow = picker.cast()?;
     let target_hwnd = if let Some(owner_window) = owner_window {
+        debug!("Using provided owner window for capture picker");
         owner_window
     } else {
         // Creating and immediately pumping/destroying this temporary visible window
@@ -63,10 +64,12 @@ pub(crate) fn new_item_with_picker(
     };
 
     if target_hwnd.0.is_null() {
+        debug!("No foreground window available for capture picker");
         return Err(WgcError::NoForegroundWindow);
     }
 
     unsafe { initialize_with_window.Initialize(target_hwnd)? };
+    debug!("Capture picker opened; waiting for item selection");
     let op = picker.PickSingleItemAsync()?;
     let mut msg = MSG::default();
     unsafe {
@@ -87,7 +90,6 @@ pub(crate) fn new_item_with_picker(
             }
         }
     }
-
     op.GetResults().map_err(|e| {
         if e.code() == S_OK {
             debug!("No item selected");
@@ -106,11 +108,11 @@ unsafe extern "system" fn wnd_proc(
 ) -> LRESULT {
     match msg {
         WM_CREATE => {
-            debug!("a hidden window for picker is created: {:?}", hwnd);
+            debug!("created a hidden window for picker: {:?}", hwnd);
         }
         WM_DESTROY => {
             unsafe { PostQuitMessage(0) };
-            debug!("the hidden window for picker is destroyed: {:?}", hwnd);
+            debug!("destroyed the hidden window for picker : {:?}", hwnd);
         }
         _ => {}
     }
@@ -164,8 +166,8 @@ impl Drop for HiddenWindow {
     fn drop(&mut self) {
         unsafe {
             let r = PostMessageW(Some(self.hwnd), WM_DESTROY, WPARAM(0), LPARAM(0));
-            if let Err(_e) = r {
-                debug!("failed to destroy the hidden window for picker: {:?}", _e);
+            if let Err(e) = r {
+                debug!("Failed to destroy hidden picker owner window: {:?}", e);
             }
             let mut msg = MSG::default();
             while GetMessageW(&mut msg, None, 0, 0).0 != 0 {

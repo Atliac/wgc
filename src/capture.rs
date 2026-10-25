@@ -179,6 +179,10 @@ impl Wgc {
         );
         let control = create_dispatcher_queue_controller()?;
         let buffer_size = item.Size()?;
+        debug!(
+            "Creating frame pool (size: {:?}, queue length: {}, pixel format: {:?})",
+            buffer_size, settings.frame_queue_length, settings.pixel_format
+        );
         let frame_pool = Direct3D11CaptureFramePool::Create(
             &direct3d_device,
             settings.pixel_format.into(),
@@ -188,21 +192,31 @@ impl Wgc {
         // This `no-op` handler is necessary; otherwise, the frame pool will fail to receive updates.
         frame_pool.FrameArrived(
             &TypedEventHandler::<Direct3D11CaptureFramePool, IInspectable>::new(move |_pool, _| {
-                trace!("Frame arrived");
+                trace!(
+                    "Frame pool reported an available frame:{:?}",
+                    std::thread::current().id()
+                );
                 Ok(())
             }),
         )?;
         let session = frame_pool.CreateCaptureSession(&item)?;
+        debug!("Created capture session");
 
         if let Some(capture_cursor) = settings.capture_cursor {
+            debug!("Setting cursor capture to {}", capture_cursor);
             session.SetIsCursorCaptureEnabled(capture_cursor)?;
         }
 
         if let Some(include_secondary_windows) = settings.include_secondary_windows {
+            debug!(
+                "Setting secondary window capture to {}",
+                include_secondary_windows
+            );
             session.SetIncludeSecondaryWindows(include_secondary_windows)?;
         }
 
         if let Some(display_border) = settings.display_border {
+            debug!("Setting capture border to {}", display_border);
             session.SetIsBorderRequired(display_border)?;
         }
 
@@ -212,21 +226,27 @@ impl Wgc {
             } else {
                 GraphicsCaptureDirtyRegionMode::ReportOnly
             };
+            debug!("Setting dirty region mode to {:?}", mode);
             session.SetDirtyRegionMode(mode)?;
         }
 
         if let Some(min_update_interval) = settings.min_update_interval {
+            debug!(
+                "Setting minimum update interval to {:?}",
+                min_update_interval
+            );
             session.SetMinUpdateInterval(min_update_interval.into())?;
         }
 
         item.Closed(
             &TypedEventHandler::<GraphicsCaptureItem, IInspectable>::new(move |_item, _| {
-                debug!("Item closed, stopping capture");
+                debug!("Capture item closed; stopping capture");
                 unsafe { PostQuitMessage(0) };
                 Ok(())
             }),
         )?;
         session.StartCapture()?;
+        debug!("Capture session started");
         Ok(Self {
             item,
             _session: session,
@@ -245,6 +265,7 @@ impl Iterator for Wgc {
     fn next(&mut self) -> Option<Self::Item> {
         let mut msg = MSG::default();
         unsafe {
+            trace!("Waiting for next frame");
             loop {
                 let frame = self.frame_pool.TryGetNextFrame();
                 if let Ok(frame) = frame {
@@ -254,8 +275,8 @@ impl Iterator for Wgc {
                     };
 
                     if frame_size != self.buffer_size {
-                        trace!(
-                            "Frame dropped as buffer size changed from {:?} to {:?}",
+                        debug!(
+                            "Capture size changed from {:?} to {:?}; recreating frame pool",
                             self.buffer_size, frame_size
                         );
                         match self.frame_pool.Recreate(
@@ -266,11 +287,15 @@ impl Iterator for Wgc {
                         ) {
                             Ok(_) => {
                                 self.buffer_size = frame_size;
+                                trace!("Frame pool recreated at new capture size");
                             }
                             Err(err) => return Some(Err(err.into())),
                         }
                     } else {
-                        trace!("Got frame");
+                        trace!(
+                            "Retrieved frame from capture pool:{:?}",
+                            std::thread::current().id()
+                        );
                         let frame = Frame::new(
                             frame,
                             self.d2d1_context.clone(),
