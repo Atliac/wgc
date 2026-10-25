@@ -127,6 +127,9 @@ impl Frame {
 
     /// Returns the raw pixel data of the capture frame at its native size.
     ///
+    /// The returned buffer uses the configured [`PixelFormat`]. For formats with an alpha
+    /// channel, the color channels are **premultiplied by alpha**.
+    ///
     /// # Returns
     ///
     /// A `Vec<u8>` containing the raw pixel data in the frame's pixel format.
@@ -141,6 +144,9 @@ impl Frame {
     /// If `desired_size` differs from the frame's native size, the image will be scaled
     /// to fit within the desired dimensions while maintaining aspect ratio. The scaled
     /// image will be letterboxed (centered with gray borders) to fill the desired size.
+    ///
+    /// The returned buffer uses the configured [`PixelFormat`]. For formats with an alpha
+    /// channel, the color channels are **premultiplied by alpha**.
     ///
     /// # Arguments
     ///

@@ -139,6 +139,9 @@ impl From<FrameInterpolationMode> for windows::Win32::Graphics::Direct2D::D2D1_I
 /// Contains the underlying DirectX pixel format and the number of bytes per pixel.
 /// Use the predefined constants [`PixelFormat::RGBA8`] or [`PixelFormat::BGRA8`]
 /// for common formats, or create a custom format with [`PixelFormat::new`].
+///
+/// Buffers returned by [`Frame::pixels`] and [`Frame::pixels_fitted`] use premultiplied
+/// alpha for formats that contain an alpha channel.
 #[derive(Debug, Clone, Copy)]
 pub struct PixelFormat {
     /// The underlying DirectX pixel format.
