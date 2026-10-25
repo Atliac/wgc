@@ -2,10 +2,8 @@ use image::{ImageBuffer, Rgba};
 use wgc::*;
 
 fn main() -> anyhow::Result<()> {
-    // run with `cargo run --example save_image` to see debug output,
-    // set `RUST_LOG=trace` environment variable to see verbose output
     use tracing_subscriber::EnvFilter;
-    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("trace"));
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
     // pick an item to capture and create capture session

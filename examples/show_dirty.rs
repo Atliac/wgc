@@ -7,7 +7,7 @@
 //! ```
 
 use image::{GenericImage, GenericImageView, ImageBuffer, Rgba, RgbaImage};
-use show_image::{ImageInfo, ImageView};
+use show_image::{ImageInfo, ImageView, WindowOptions};
 use wgc::*;
 
 #[show_image::main]
@@ -38,14 +38,26 @@ fn main() -> anyhow::Result<()> {
         .DisplayName()
         .unwrap_or_default()
         .to_string_lossy();
-    let window =
-        show_image::create_window(format!("{title} - Only Dirty Regions"), Default::default())?;
+    let window_options = WindowOptions::default().set_default_controls(false);
+    let window = show_image::create_window(title.clone(), window_options)?;
 
     for frame in wgc {
+        let frame_size;
+        if let Ok(window_inner_size) = window.run_function_wait(|window| window.inner_size()) {
+            frame_size = FrameSize {
+                width: window_inner_size.x,
+                height: window_inner_size.y,
+            };
+        } else {
+            break;
+        }
+        if frame_size.width == 0 || frame_size.height == 0 {
+            continue;
+        }
+
         let frame = frame?;
-        let frame_size = frame.size()?;
-        let regions = frame.dirty_regions()?;
-        let frame_pixels = frame.pixels()?;
+        let regions = frame.dirty_regions_fitted(frame_size)?;
+        let frame_pixels = frame.pixels_fitted(frame_size)?;
         let frame_image: RgbaImage =
             ImageBuffer::from_raw(frame_size.width, frame_size.height, frame_pixels)
                 .ok_or_else(|| anyhow::anyhow!("buffer size does not match frame dimensions"))?;
@@ -69,11 +81,11 @@ fn main() -> anyhow::Result<()> {
             ImageInfo::rgba8_premultiplied(frame_size.width, frame_size.height),
             display_image.as_raw(),
         );
-        if window.set_image(&title, image).is_err() {
-            println!("Bye!");
+        if window.set_image(title.clone(), image).is_err() {
             break;
         }
     }
 
+    println!("Bye!");
     Ok(())
 }

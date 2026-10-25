@@ -6,7 +6,10 @@ use windows::{
     Win32::{
         Graphics::{
             Direct2D::{
-                Common::{D2D_RECT_F, D2D_SIZE_U, D2D1_COLOR_F, D2D1_PIXEL_FORMAT},
+                Common::{
+                    D2D_RECT_F, D2D_SIZE_U, D2D1_ALPHA_MODE, D2D1_ALPHA_MODE_PREMULTIPLIED,
+                    D2D1_COLOR_F, D2D1_PIXEL_FORMAT,
+                },
                 D2D1_BITMAP_PROPERTIES1, ID2D1Bitmap1, ID2D1DeviceContext,
             },
             Dxgi::IDXGISurface,
@@ -15,6 +18,17 @@ use windows::{
     },
     core::Interface,
 };
+
+/// Alpha mode used for every Direct2D bitmap this module creates.
+///
+/// Direct2D supports only a limited set of pixel-format/alpha-mode combinations. For the
+/// 32-bit formats this crate exposes (`B8G8R8A8_UNORM` and `R8G8B8A8_UNORM`), bitmaps and
+/// render targets support `PREMULTIPLIED`, `IGNORE`, and `UNKNOWN`; `STRAIGHT` is only valid
+/// for `A8_UNORM`. Since the colors we read back are produced by Direct2D's premultiplied
+/// compositing pipeline, [`Frame::pixels`] and [`Frame::pixels_fitted`] therefore return
+/// premultiplied bytes.
+const ALPHA_MODE: D2D1_ALPHA_MODE = D2D1_ALPHA_MODE_PREMULTIPLIED;
+
 #[derive(Debug)]
 pub struct Frame {
     frame: Direct3D11CaptureFrame,
@@ -68,7 +82,69 @@ impl Frame {
         Ok(regions.into_iter().map(DirtyRegion::from).collect())
     }
 
+    /// Returns the dirty regions transformed into the coordinate space of
+    /// [`Frame::pixels_fitted`] for `desired_size`.
+    ///
+    /// The regions are scaled and letterboxed in the same way as the frame pixels,
+    /// so they can be drawn directly on the fitted image.
+    pub fn dirty_regions_fitted(
+        &self,
+        desired_size: FrameSize,
+    ) -> std::result::Result<Vec<DirtyRegion>, WgcError> {
+        let frame_size = self.size()?;
+        let regions = self.dirty_regions()?;
+
+        if frame_size == desired_size {
+            return Ok(regions);
+        }
+
+        if frame_size.width == 0 || frame_size.height == 0 {
+            return Ok(Vec::new());
+        }
+
+        let scale = (desired_size.width as f32 / frame_size.width as f32)
+            .min(desired_size.height as f32 / frame_size.height as f32);
+        let offset_x = (desired_size.width as f32 - frame_size.width as f32 * scale) / 2.0;
+        let offset_y = (desired_size.height as f32 - frame_size.height as f32 * scale) / 2.0;
+
+        Ok(regions
+            .into_iter()
+            .filter_map(|region| {
+                if region.width == 0 || region.height == 0 {
+                    return None;
+                }
+
+                let left = (offset_x + region.x as f32 * scale).floor().max(0.0) as u32;
+                let top = (offset_y + region.y as f32 * scale).floor().max(0.0) as u32;
+                let right = (offset_x + (region.x as f32 + region.width as f32) * scale)
+                    .ceil()
+                    .max(0.0)
+                    .min(desired_size.width as f32) as u32;
+                let bottom = (offset_y + (region.y as f32 + region.height as f32) * scale)
+                    .ceil()
+                    .max(0.0)
+                    .min(desired_size.height as f32) as u32;
+
+                if right <= left || bottom <= top {
+                    return None;
+                }
+
+                Some(DirtyRegion {
+                    x: left as i32,
+                    y: top as i32,
+                    width: right - left,
+                    height: bottom - top,
+                })
+            })
+            .collect())
+    }
+
     /// Returns the raw pixel data of the capture frame at its native size.
+    ///
+    /// The returned buffer uses the configured [`PixelFormat`]. For formats with an alpha
+    /// channel, the color channels are **premultiplied by alpha** instead of straight alpha:
+    /// Direct2D only accepts `D2D1_ALPHA_MODE_PREMULTIPLIED` (or `IGNORE`/`UNKNOWN`) for
+    /// `B8G8R8A8_UNORM` and `R8G8B8A8_UNORM` bitmaps, and it composites in premultiplied form.
     ///
     /// # Returns
     ///
@@ -84,6 +160,11 @@ impl Frame {
     /// If `desired_size` differs from the frame's native size, the image will be scaled
     /// to fit within the desired dimensions while maintaining aspect ratio. The scaled
     /// image will be letterboxed (centered with gray borders) to fill the desired size.
+    ///
+    /// The returned buffer uses the configured [`PixelFormat`]. For formats with an alpha
+    /// channel, the color channels are **premultiplied by alpha** instead of straight alpha:
+    /// Direct2D only accepts `D2D1_ALPHA_MODE_PREMULTIPLIED` (or `IGNORE`/`UNKNOWN`) for
+    /// `B8G8R8A8_UNORM` and `R8G8B8A8_UNORM` bitmaps, and it composites in premultiplied form.
     ///
     /// # Arguments
     ///
@@ -166,8 +247,7 @@ impl Frame {
         let bitmap_properties = D2D1_BITMAP_PROPERTIES1 {
             pixelFormat: D2D1_PIXEL_FORMAT {
                 format: self.pixel_format.into(),
-                alphaMode:
-                    windows::Win32::Graphics::Direct2D::Common::D2D1_ALPHA_MODE_PREMULTIPLIED,
+                alphaMode: ALPHA_MODE,
             },
             bitmapOptions: windows::Win32::Graphics::Direct2D::D2D1_BITMAP_OPTIONS_TARGET,
             ..Default::default()
@@ -192,8 +272,7 @@ impl Frame {
         let bitmap_properties = D2D1_BITMAP_PROPERTIES1 {
             pixelFormat: D2D1_PIXEL_FORMAT {
                 format: self.pixel_format.into(),
-                alphaMode:
-                    windows::Win32::Graphics::Direct2D::Common::D2D1_ALPHA_MODE_PREMULTIPLIED,
+                alphaMode: ALPHA_MODE,
             },
             bitmapOptions: windows::Win32::Graphics::Direct2D::D2D1_BITMAP_OPTIONS_CPU_READ
                 | windows::Win32::Graphics::Direct2D::D2D1_BITMAP_OPTIONS_CANNOT_DRAW,

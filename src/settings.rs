@@ -139,6 +139,14 @@ impl From<FrameInterpolationMode> for windows::Win32::Graphics::Direct2D::D2D1_I
 /// Contains the underlying DirectX pixel format and the number of bytes per pixel.
 /// Use the predefined constants [`PixelFormat::RGBA8`] or [`PixelFormat::BGRA8`]
 /// for common formats, or create a custom format with [`PixelFormat::new`].
+///
+/// Buffers returned by [`Frame::pixels`](crate::Frame::pixels) and
+/// [`Frame::pixels_fitted`](crate::Frame::pixels_fitted) use premultiplied
+/// alpha for formats that contain an alpha channel. This is a Direct2D constraint, not an
+/// arbitrary choice: for 32-bit formats such as `B8G8R8A8_UNORM` and `R8G8B8A8_UNORM`,
+/// bitmaps and render targets only support premultiplied, ignore, or unknown alpha modes.
+/// `D2D1_ALPHA_MODE_STRAIGHT` is valid only for `A8_UNORM`, so straight-alpha output cannot
+/// be produced for these formats.
 #[derive(Debug, Clone, Copy)]
 pub struct PixelFormat {
     /// The underlying DirectX pixel format.

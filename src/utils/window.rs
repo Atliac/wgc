@@ -1,3 +1,4 @@
+use tracing::debug;
 use windows::{
     Graphics::Capture::GraphicsCaptureItem,
     Win32::{Foundation::HWND, System::WinRT::Graphics::Capture::IGraphicsCaptureItemInterop},
@@ -35,7 +36,9 @@ use crate::*;
 /// let capture_item = new_item_from_hwnd(hwnd)?;
 /// ```
 pub(crate) fn new_item_from_hwnd(hwnd: HWND) -> std::result::Result<GraphicsCaptureItem, WgcError> {
+    debug!("Creating capture item for window: {:?}", hwnd);
     let interop = windows::core::factory::<GraphicsCaptureItem, IGraphicsCaptureItemInterop>()?;
     let item: GraphicsCaptureItem = unsafe { interop.CreateForWindow(hwnd) }?;
+    debug!("Created capture item for window: {:?}", hwnd);
     Ok(item)
 }
