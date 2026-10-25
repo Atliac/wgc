@@ -192,10 +192,7 @@ impl Wgc {
         // This `no-op` handler is necessary; otherwise, the frame pool will fail to receive updates.
         frame_pool.FrameArrived(
             &TypedEventHandler::<Direct3D11CaptureFramePool, IInspectable>::new(move |_pool, _| {
-                trace!(
-                    "Frame pool reported an available frame:{:?}",
-                    std::thread::current().id()
-                );
+                // `no-op` warning: no logic, no tracing allowed here, or it would be strange.
                 Ok(())
             }),
         )?;
@@ -265,7 +262,7 @@ impl Iterator for Wgc {
     fn next(&mut self) -> Option<Self::Item> {
         let mut msg = MSG::default();
         unsafe {
-            trace!("Waiting for next frame");
+            let mut is_pool_empty = false;
             loop {
                 let frame = self.frame_pool.TryGetNextFrame();
                 if let Ok(frame) = frame {
@@ -287,15 +284,15 @@ impl Iterator for Wgc {
                         ) {
                             Ok(_) => {
                                 self.buffer_size = frame_size;
-                                trace!("Frame pool recreated at new capture size");
+                                trace!(
+                                    "Frame pool recreated at new capture size: {:?}",
+                                    frame_size
+                                );
                             }
                             Err(err) => return Some(Err(err.into())),
                         }
                     } else {
-                        trace!(
-                            "Retrieved frame from capture pool:{:?}",
-                            std::thread::current().id()
-                        );
+                        trace!("Retrieved frame from capture pool",);
                         let frame = Frame::new(
                             frame,
                             self.d2d1_context.clone(),
@@ -304,6 +301,10 @@ impl Iterator for Wgc {
                         );
                         return Some(Ok(frame));
                     }
+                }
+                if !is_pool_empty {
+                    is_pool_empty = true;
+                    trace!("Waiting for next frame");
                 }
                 match GetMessageW(&mut msg, None, 0, 0).0 {
                     -1 => {
