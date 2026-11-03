@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.1](https://github.com/Atliac/wgc/compare/v3.1.0...v3.1.1) - 2026-11-03
+
+### Other
+
+- *(deps)* bump imageproc from 0.26.2 to 0.27.0 ([#84](https://github.com/Atliac/wgc/pull/84))
+
 ## [3.1.0](https://github.com/Atliac/wgc/compare/v3.0.1...v3.1.0) - 2026-10-25
 
 ### Added
